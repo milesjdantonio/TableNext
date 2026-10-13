@@ -15,6 +15,7 @@ public class Party {
             this.hostName = hostName;
             this.size = size;
             this.reservationTime = reservationTime;
+            this.order = new LinkedChain<MenuItem>();
     }
 
     public long getId() {
@@ -47,10 +48,10 @@ public class Party {
         }
         if (moveLater) {
             reservationTime = reservationTime.plusHours(1);
-            return true;
+        } else {
+            reservationTime = reservationTime.minusHours(1);
         }
-        reservationTime = reservationTime.minusHours(1);
-        return false;
+        return true;
     }
 
     public int getPosition() {
@@ -100,15 +101,25 @@ public class Party {
         return result;
     }
 
-    public boolean equal(Party obj) {
-        return this.id == obj.id;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Party)) {
+            return false;
+        }
+
+        Party other = (Party) obj;
+        return this.id == other.id;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Party:\n");
-        sb.append("Hostname: ").append(hostName).append("\n");
+        sb.append("Host Name: ").append(hostName).append("\n");
         sb.append("Id: ").append(id).append("\n");
         sb.append("Size: ").append(size).append("\n");
         sb.append("Position: ").append(position).append("\n");
