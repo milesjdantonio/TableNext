@@ -78,8 +78,7 @@ public class Party {
 
         for (int i = 0; i < order.size(); i++) {
             if (order.get(i).equals(item)) {
-                order.remove(item);
-                return true;
+                return order.remove(item);
             }
         }
         return false;
