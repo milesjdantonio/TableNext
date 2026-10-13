@@ -7,13 +7,15 @@ public class Party {
     private final String hostName;
     private int size;
     private int position;
+    private boolean needAccessibility;
     private LocalDateTime reservationTime;
     private LinkedChain<MenuItem> order;
 
-    public Party(String hostName, int size, LocalDateTime reservationTime) {
+    public Party(String hostName, int size, boolean needAccessibility, LocalDateTime reservationTime) {
             this.id = nextId++;
             this.hostName = hostName;
             this.size = size;
+            this.needAccessibility = needAccessibility;
             this.reservationTime = reservationTime;
             this.order = new LinkedChain<MenuItem>();
     }
@@ -32,6 +34,14 @@ public class Party {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public boolean needAccessibility() {
+        return this.needAccessibility;
+    }
+
+    public void setNeedneedAccessibility(boolean needAccessibility) {
+        this.needAccessibility = needAccessibility;
     }
 
     public boolean hasReservation() {
