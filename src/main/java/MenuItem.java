@@ -51,12 +51,13 @@ public class MenuItem {
         && (this.getPrice() == compare.getPrice());
     }
 
-    @Override 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Menu Item Name: ").append(this.getName()).append("\n");
-        sb.append("Menu Item Price: ").append(this.getPrice()).append("\n");
+    @Override
+    public int hashCode() {
+        return 31 * this.name.toLowerCase().hashCode() + Double.hashCode(this.price);
+    }
 
-        return sb.toString();
+    @Override
+    public String toString() {
+        return String.format("%s $%.2f", this.getName(), this.getPrice());
     }
 }
