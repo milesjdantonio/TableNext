@@ -4,7 +4,7 @@ imprt java.time.LocalDateTime;
  * Tests for Party. Every public method has at least one normal
  * case and one bad input case
  *
- * @author CS 2114 project team
+ * @author Ethan Kahl
  * @version 10/12/26
  */
 public class PartyTest extends student.TestCase
