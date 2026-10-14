@@ -87,8 +87,13 @@ public class Table {
         return this.seatedParty == null;
     }
 
+    /** Returns whether this table has enough seats for the party. */
+    public boolean fits(Party party) {
+        return party != null && party.getSize() <= this.size;
+    }
+
     public boolean seat(Party party) {
-        if (party == null || !isOpen() || party.getSize() > this.size) {
+        if (!isOpen() || !fits(party)) {
             return false;
         }
 
@@ -100,5 +105,31 @@ public class Table {
         Party result = this.seatedParty;
         this.seatedParty = null;
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Table)) {
+            return false;
+        }
+        Table other = (Table)obj;
+        return this.tableNumber == other.tableNumber;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(this.tableNumber);
+    }
+
+    @Override
+    public String toString() {
+        if (isOpen()) {
+            return "Table " + tableNumber + " (" + size + " seats): Open";
+        }
+        return "Table " + tableNumber + " (" + size + " seats): "
+            + seatedParty.getHostName();
     }
 }
