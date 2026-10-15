@@ -76,7 +76,8 @@ The core console prototype works. Estimated wait times, text notifications, and 
 1. Review the program’s input validation and fix any issues found by the tests.
 2. Verify the full MVP path: add, insert, remove, view, count, seat, clear, and order items.
 3. Add a "add table" option to host, with presets primarly for demonstration.
-4. Prepare the final demonstration and make sure every team member can explain their code.
+4. Add Tests to any feature we add
+5. Prepare the final demonstration and make sure every team member can explain their code.
 
 The team is keeping table-capacity seating and food orders as implemented extensions. Estimated wait times, text notifications, and the HokieWait generalization will not be included in this version.
 
