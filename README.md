@@ -28,15 +28,16 @@ Example:
 
 ## Running Tests
 There are 7 test classes and 192 tests. 
-Test class     Tests	      What it covers
--
-MenuItemTest	  19	        Name and price validation, equals ignoring case, formatting
-PartyTest	      28	        Party details, moving a reservation, waitlist position, order items
-TableTest	      27	        Size and accessible-seat rules, which seats fill first, seating and clearing
-WaitlistTest	  17	        Add, insert, and remove by position, and renumbering after every change
-RestaurantTest	29	      Smallest-table seating, waitlist overflow, seating the first party that fits
-DisplayTest	    35	      What each menu and message prints, and the empty-state wording
-TableNextAppTest	37	    The typed-input loops, each role's menu, and re-asking on bad input
+
+| Test class | Tests | What it covers |
+| --- | --- | --- |
+| `MenuItemTest` | 19 | Name and price validation, equals ignoring case, formatting |
+| `PartyTest` | 28 | Party details, moving a reservation, waitlist position, order items |
+| `TableTest` | 27 | Size and accessible-seat rules, which seats fill first, seating and clearing |
+| `WaitlistTest` | 17 | Add, insert, and remove by position, and renumbering after every change |
+| `RestaurantTest` | 29 | Smallest-table seating, waitlist overflow, seating the first party that fits |
+| `DisplayTest` | 35 | What each menu and message prints, and the empty-state wording |
+| `TableNextAppTest` | 37 | The typed-input loops, each role's menu, and re-asking on bad input |
 
 
 
