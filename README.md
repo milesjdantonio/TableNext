@@ -88,11 +88,17 @@ The team is keeping table-capacity seating and food orders as implemented extens
 | `Restaurant.java` | Alex Chen — implemented restaurant coordination, seating, menu, and order methods; GenAI-assisted development, reviewed before use. |
 | `TableNextApp.java` | Alex Chen — implemented console menus and input validation; GenAI-assisted development, reviewed before use. |
 | `Table.java` | Team — original table and accessibility design; Alex Chen added `fits`, `equals`, `hashCode`, and `toString`. |
-| `Party.java` | Miles D’Antonio — reviewed party design and implementation; GenAI-assisted revisions were reviewed before use. |
-| `MenuItem.java` | Miles D’Antonio — reviewed menu-item design and implementation; GenAI-assisted revisions were reviewed before use. |
-| `Display.java` | Miles D’Antonio — reviewed console-display implementation; GenAI-assisted implementation was reviewed before use. |
+| `Party.java` | Miles D'Antonio — reviewed party design and implementation; GenAI-assisted revisions were reviewed before use. |
+| `MenuItem.java` | Miles D'Antonio — reviewed menu-item design and implementation; GenAI-assisted revisions were reviewed before use. |
+| `Display.java` | Miles D'Antonio — reviewed console-display implementation; GenAI-assisted implementation was reviewed before use. |
 | `UserType.java` | Team — defined user roles. |
-| Test files in `src/test/java` | Ethan Kahl — writing and running JUnit tests for normal and bad-input cases. |
+| `MenuItemTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
+| `PartyTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
+| `TableTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
+| `WaitlistTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
+| `RestaurantTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
+| `DisplayTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
+| `TableNextAppTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
 
 ## GenAI Note
 We used claude to help while building this. For the application classes, GenAI helped revise code, 
