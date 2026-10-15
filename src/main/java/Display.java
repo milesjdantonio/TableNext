@@ -118,7 +118,7 @@ public class Display {
         }
 
         switch (user) {
-            case HOST:
+            case HOST -> {
                 System.out.println("\nHost Menu");
                 System.out.println("  1. Add Party");
                 System.out.println("  2. Insert Party at Position");
@@ -128,19 +128,20 @@ public class Display {
                 System.out.println("  6. View Waitlist Count");
                 System.out.println("  7. Seat Next Party at Table");
                 System.out.println("  8. Clear Table");
-                System.out.println("  9. View Tables");                break;
-            case SERVER:
+                System.out.println("  9. View Tables");
+            }
+            case SERVER -> {
                 System.out.println("\nServer Menu");
                 System.out.println("  1. View Tables");
                 System.out.println("  2. Add Item to Table");
                 System.out.println("  3. Remove Item from Table");
                 System.out.println("  4. View Table Order");
-                break;
-            case CUSTOMER:
+            }
+            case CUSTOMER -> {
                 System.out.println("\nCustomer Menu");
                 System.out.println("  1. View Waitlist");
                 System.out.println("  2. View Waitlist Count");
-                break;
+            }
         }
         System.out.println("  0. Switch User");
     }

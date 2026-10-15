@@ -9,8 +9,8 @@ public class TableNextApp {
     private static final DateTimeFormatter RESERVATION_FORMAT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private Scanner input;
-    private Restaurant restaurant;
+    private final Scanner input;
+    private final Restaurant restaurant;
 
     public TableNextApp() {
         input = new Scanner(System.in);
@@ -69,101 +69,96 @@ public class TableNextApp {
 
     /** Performs a host action chosen from the Host menu. */
     public void handleHostChoice(int choice) {
-        if (choice == 1) {
-            Party party = addNewParty();
-            if (party == null) {
-                Display.printError("No table can seat a party that size");
+        switch (choice) {
+            case 1 ->                 {
+                    Party party = addNewParty();
+                    if (party == null) {
+                        Display.printError("No table can seat a party that size");
+                    }
+                    else if (party.getPosition() == 0) {
+                        Display.printMessage(party.getHostName() + " was seated immediately");
+                    }
+                    else {
+                        Display.printMessage(party.getHostName() + " was added to the waitlist");
+                    }                      }
+            case 2 -> {
+                String name = readName("Host name: ");
+                int size = readInt("Party size: ", 1, MAX_PARTY_SIZE);
+                boolean accessible = readYesNo("Needs accessible seating? (y/n): ");
+                LocalDateTime reservation = readReservationTime();
+                int position = readInt("Waitlist position: ", 1,
+                        restaurant.getWaitlist().getCount() + 1);
+                if (restaurant.insertPartyAt(name, size, accessible, reservation, position)) {
+                    Display.printMessage(name + " was inserted at position " + position);
+                }
+                else {
+                    Display.printError("No table can seat a party that size");
+                }
             }
-            else if (party.getPosition() == 0) {
-                Display.printMessage(party.getHostName() + " was seated immediately");
+            case 3 ->                 {
+                    Party party = restaurant.getWaitlist().removeAt(
+                            readInt("Position to remove: ", 1, Math.max(1,
+                                    restaurant.getWaitlist().getCount())));
+                    if (party == null) {
+                        Display.printError("That waitlist position does not exist");
+                    }
+                    else {
+                        Display.printMessage(party.getHostName() + " was removed");
+                    }                      }
+            case 4 -> Display.printWaitlist(restaurant.getWaitlist().getInOrder(), UserType.HOST);
+            case 5 -> Display.printNext(restaurant.getWaitlist().peekNext());
+            case 6 -> Display.printCount(restaurant.getWaitlist().getCount());
+            case 7 -> {
+                int tableNumber = readTableNumber();
+                if (restaurant.seatNext(tableNumber)) {
+                    Display.printMessage("A waiting party was seated");
+                }
+                else {
+                    Display.printError("Table is unavailable or no waiting party fits");
+                }
             }
-            else {
-                Display.printMessage(party.getHostName() + " was added to the waitlist");
+            case 8 -> {
+                if (restaurant.clearTable(readTableNumber())) {
+                    Display.printMessage("Table cleared");
+                }
+                else {
+                    Display.printError("That table is already open or does not exist");
+                }
             }
-        }
-        else if (choice == 2) {
-            String name = readName("Host name: ");
-            int size = readInt("Party size: ", 1, MAX_PARTY_SIZE);
-            boolean accessible = readYesNo("Needs accessible seating? (y/n): ");
-            LocalDateTime reservation = readReservationTime();
-            int position = readInt("Waitlist position: ", 1,
-                restaurant.getWaitlist().getCount() + 1);
-            if (restaurant.insertPartyAt(name, size, accessible, reservation, position)) {
-                Display.printMessage(name + " was inserted at position " + position);
+            case 9 -> Display.printTables(restaurant.getTables());
+            default -> {
             }
-            else {
-                Display.printError("No table can seat a party that size");
-            }
-        }
-        else if (choice == 3) {
-            Party party = restaurant.getWaitlist().removeAt(
-                readInt("Position to remove: ", 1, Math.max(1,
-                    restaurant.getWaitlist().getCount())));
-            if (party == null) {
-                Display.printError("That waitlist position does not exist");
-            }
-            else {
-                Display.printMessage(party.getHostName() + " was removed");
-            }
-        }
-        else if (choice == 4) {
-            Display.printWaitlist(restaurant.getWaitlist().getInOrder(), UserType.HOST);
-        }
-        else if (choice == 5) {
-            Display.printNext(restaurant.getWaitlist().peekNext());
-        }
-        else if (choice == 6) {
-            Display.printCount(restaurant.getWaitlist().getCount());
-        }
-        else if (choice == 7) {
-            int tableNumber = readTableNumber();
-            if (restaurant.seatNext(tableNumber)) {
-                Display.printMessage("A waiting party was seated");
-            }
-            else {
-                Display.printError("Table is unavailable or no waiting party fits");
-            }
-        }
-        else if (choice == 8) {
-            if (restaurant.clearTable(readTableNumber())) {
-                Display.printMessage("Table cleared");
-            }
-            else {
-                Display.printError("That table is already open or does not exist");
-            }
-        }
-        else if (choice == 9) {
-            Display.printTables(restaurant.getTables());
         }
     }
 
     /** Performs a server action chosen from the Server menu. */
     public void handleServerChoice(int choice) {
-        if (choice == 1) {
-            Display.printTables(restaurant.getTables());
-        }
-        else if (choice == 2 || choice == 3) {
-            int tableNumber = readTableNumber();
-            MenuItem[] menu = restaurant.getMenu();
-            Display.printFoodMenu(menu);
-            int menuChoice = readInt("Choose a menu item: ", 1, menu.length);
-            boolean changed;
-            if (choice == 2) {
-                changed = restaurant.addItemToTable(tableNumber, menu[menuChoice - 1]);
+        switch (choice) {
+            case 1 -> Display.printTables(restaurant.getTables());
+            case 2, 3 -> {
+                int tableNumber = readTableNumber();
+                MenuItem[] menu = restaurant.getMenu();
+                Display.printFoodMenu(menu);
+                int menuChoice = readInt("Choose a menu item: ", 1, menu.length);
+                boolean changed;
+                if (choice == 2) {
+                    changed = restaurant.addItemToTable(tableNumber, menu[menuChoice - 1]);
+                }
+                else {
+                    changed = restaurant.removeItemFromTable(tableNumber, menu[menuChoice - 1]);
+                }   if (changed) {
+                    Display.printMessage(choice == 2 ? "Item added" : "Item removed");
+                }
+                else {
+                    Display.printError("No seated party has that item in its order");
+                }
             }
-            else {
-                changed = restaurant.removeItemFromTable(tableNumber, menu[menuChoice - 1]);
+            case 4 -> {
+                Table table = restaurant.findTable(readTableNumber());
+                Display.printOrder(table == null ? null : table.getSeatedParty());
             }
-            if (changed) {
-                Display.printMessage(choice == 2 ? "Item added" : "Item removed");
+            default -> {
             }
-            else {
-                Display.printError("No seated party has that item in its order");
-            }
-        }
-        else if (choice == 4) {
-            Table table = restaurant.findTable(readTableNumber());
-            Display.printOrder(table == null ? null : table.getSeatedParty());
         }
     }
 
