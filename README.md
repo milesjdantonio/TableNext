@@ -75,7 +75,8 @@ The core console prototype works. Estimated wait times, text notifications, and 
 
 1. Review the program’s input validation and fix any issues found by the tests.
 2. Verify the full MVP path: add, insert, remove, view, count, seat, clear, and order items.
-3. Prepare the final demonstration and make sure every team member can explain their code.
+3. Add a "add table" option to host, with presets primarly for demonstration.
+4. Prepare the final demonstration and make sure every team member can explain their code.
 
 The team is keeping table-capacity seating and food orders as implemented extensions. Estimated wait times, text notifications, and the HokieWait generalization will not be included in this version.
 
@@ -88,9 +89,9 @@ The team is keeping table-capacity seating and food orders as implemented extens
 | `Restaurant.java` | Alex Chen — implemented restaurant coordination, seating, menu, and order methods; GenAI-assisted development, reviewed before use. |
 | `TableNextApp.java` | Alex Chen — implemented console menus and input validation; GenAI-assisted development, reviewed before use. |
 | `Table.java` | Team — original table and accessibility design; Alex Chen added `fits`, `equals`, `hashCode`, and `toString`. |
-| `Party.java` | Miles D'Antonio — reviewed party design and implementation; GenAI-assisted revisions were reviewed before use. |
-| `MenuItem.java` | Miles D'Antonio — reviewed menu-item design and implementation; GenAI-assisted revisions were reviewed before use. |
-| `Display.java` | Miles D'Antonio — reviewed console-display implementation; GenAI-assisted implementation was reviewed before use. |
+| `Party.java` | Miles D'Antonio — wrote party design and implementation; GenAI-reviewed. |
+| `MenuItem.java` | Miles D'Antonio — wrote menu-item design and implementation; GenAI-reviewed. |
+| `Display.java` | Miles D'Antonio — wrote console-display implementation; GenAI-reviewed. |
 | `UserType.java` | Team — defined user roles. |
 | `MenuItemTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
 | `PartyTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
