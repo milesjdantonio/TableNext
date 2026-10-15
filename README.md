@@ -29,7 +29,7 @@ Example:
 ## Running Tests
 There are 7 test classes and 192 tests. 
 Test class     Tests	      What it covers
-----------------------------------------------
+-
 MenuItemTest	  19	        Name and price validation, equals ignoring case, formatting
 PartyTest	      28	        Party details, moving a reservation, waitlist position, order items
 TableTest	      27	        Size and accessible-seat rules, which seats fill first, seating and clearing
