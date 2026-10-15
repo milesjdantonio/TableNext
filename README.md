@@ -106,7 +106,7 @@ The team is keeping table-capacity seating and food orders as implemented extens
 We used claude to help while building this. For the application classes, GenAI helped revise code, 
 and the team member listed in the attribution table reviewed each file before it went in.
 For the test files, Ethan worked with claude and claude code to check that the tests were catching real bugs.
-It broke things on purpose in 34 different ways and confirmed that tests failed every time. 
+It broke things on purpose in different ways and confirmed that tests failed every time. 
 Also, for all the test classes claude assisted Ethan with writing all of the java docs and comments
 so that all of the groupmates clearly understood what was happening in that part of the code
 with a clear explanation from claude. This was looked over and reviewed before submitting. 
