@@ -27,6 +27,7 @@ Example:
 ```
 
 ## Running Tests
+There are 7 test classes and 192 tests. 
 
 
 ## Reflection
