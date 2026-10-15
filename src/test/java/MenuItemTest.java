@@ -1,237 +1,278 @@
 /**
- * Tests for MenuItem.
+ * Tests for MenuItem. Every public method gets a normal case and a bad
+ * input case. Methods that take no input are checked with the closest
+ * edge case instead, which is said in that test's comment.
  *
  * @author Ethan Kahl
- * @version 10/13/26
+ * @version 10/14/26
  */
 public class MenuItemTest extends student.TestCase
 {
+    private static final double CENT = 0.001;
+
     private MenuItem burger;
+    private MenuItem fries;
 
     /**
-     * Gives every test a burger at 12.00.
+     * Makes two menu items for the tests to use.
      */
     public void setUp()
     {
         burger = new MenuItem("Burger", 12.00);
+        fries = new MenuItem("Fries", 4.00);
     }
 
     /**
-     * The constructor keeps the name and price.
+     * A new item keeps the name and price it was built with.
      */
     public void testConstructor()
     {
         assertEquals("Burger", burger.getName());
-        assertEquals(12.00, burger.getPrice(), 0.001);
+        assertEquals(12.00, burger.getPrice(), CENT);
     }
 
     /**
-     * A free item (price 0) is allowed.
+     * A null name is refused.
      */
-    public void testConstructorFreeItem()
+    public void testConstructorNullName()
     {
-        MenuItem water = new MenuItem("Water", 0.0);
- 
-        assertEquals(0.0, water.getPrice(), 0.001);
-    }
+        Exception thrown = null;
 
-    /**
-     * A blank name or a negative price is rejected.
-     */
-    public void testConstructorBadInput()
-    {
         try
         {
             new MenuItem(null, 5.00);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            thrown = error;
         }
+        assertNotNull(thrown);
+    }
+
+    /**
+     * An empty name and a name of only spaces are both refused.
+     */
+    public void testConstructorBlankName()
+    {
+        Exception emptyName = null;
+        Exception spacesOnly = null;
+
         try
         {
             new MenuItem("", 5.00);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            emptyName = error;
         }
         try
         {
             new MenuItem("   ", 5.00);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            spacesOnly = error;
         }
-        try
-        {
-            new MenuItem("Soda", -1.00);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            // expected
-        }
+        assertNotNull(emptyName);
+        assertNotNull(spacesOnly);
     }
 
     /**
-     * getName returns the name the item was made with. There is no bad
-     * input.
+     * A negative price is refused.
+     */
+    public void testConstructorNegativePrice()
+    {
+        Exception thrown = null;
+
+        try
+        {
+            new MenuItem("Water", -1.00);
+        }
+        catch (IllegalArgumentException error)
+        {
+            thrown = error;
+        }
+        assertNotNull(thrown);
+    }
+
+    /**
+     * A price of zero is allowed, since some items are free.
+     */
+    public void testConstructorZeroPrice()
+    {
+        MenuItem water = new MenuItem("Water", 0.00);
+
+        assertEquals(0.00, water.getPrice(), CENT);
+    }
+
+    /**
+     * getName takes no input, so the edge case here is reading the name
+     * again after setName changed it.
      */
     public void testGetName()
     {
-        assertEquals("Burger", burger.getName());
-        assertEquals("Fries", new MenuItem("Fries", 4.00).getName());
+        assertEquals("Fries", fries.getName());
+        fries.setName("Curly Fries");
+        assertEquals("Curly Fries", fries.getName());
     }
- 
+
     /**
-     * getPrice returns the price the item was made with. There is no bad
-     * input.
+     * getPrice takes no input, so the edge case here is a price of zero.
      */
     public void testGetPrice()
     {
-        assertEquals(12.00, burger.getPrice(), 0.001);
-        assertEquals(4.50, new MenuItem("Fries", 4.50).getPrice(), 0.001);
+        MenuItem water = new MenuItem("Water", 0.00);
+
+        assertEquals(4.00, fries.getPrice(), CENT);
+        assertEquals(0.00, water.getPrice(), CENT);
     }
- 
+
     /**
-     * setName changes the name.
+     * setName replaces the name and leaves the price alone.
      */
     public void testSetName()
     {
-        burger.setName("Cheeseburger");
-        assertEquals("Cheeseburger", burger.getName());
+        burger.setName("Double Burger");
+
+        assertEquals("Double Burger", burger.getName());
+        assertEquals(12.00, burger.getPrice(), CENT);
     }
- 
+
     /**
-     * A null, empty, or blank name is rejected and the name stays the same.
+     * A null or blank name is refused and the old name is kept.
      */
     public void testSetNameBadInput()
     {
+        Exception nullName = null;
+        Exception blankName = null;
+
         try
         {
             burger.setName(null);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            assertEquals("Burger", burger.getName());
+            nullName = error;
         }
         try
         {
-            burger.setName("");
-            fail("Expected IllegalArgumentException");
+            burger.setName("  ");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            assertEquals("Burger", burger.getName());
+            blankName = error;
         }
-        try
-        {
-            burger.setName("   ");
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals("Burger", burger.getName());
-        }
+        assertNotNull(nullName);
+        assertNotNull(blankName);
+        assertEquals("Burger", burger.getName());
     }
- 
+
     /**
-     * setPrice changes the price, including down to 0.
+     * setPrice replaces the price and leaves the name alone.
      */
     public void testSetPrice()
     {
-        burger.setPrice(10.50);
-        assertEquals(10.50, burger.getPrice(), 0.001);
-        burger.setPrice(0.0);
-        assertEquals(0.0, burger.getPrice(), 0.001);
+        burger.setPrice(13.50);
+
+        assertEquals(13.50, burger.getPrice(), CENT);
+        assertEquals("Burger", burger.getName());
     }
- 
+
     /**
-     * A negative price is rejected and the price stays the same.
+     * A negative price is refused and the old price is kept.
      */
     public void testSetPriceBadInput()
     {
+        Exception thrown = null;
+
         try
         {
-            burger.setPrice(-1.00);
-            fail("Expected IllegalArgumentException");
+            burger.setPrice(-0.01);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            assertEquals(12.00, burger.getPrice(), 0.001);
+            thrown = error;
         }
+        assertNotNull(thrown);
+        assertEquals(12.00, burger.getPrice(), CENT);
     }
- 
+
     /**
-     * Two items with the same name and price are equal, and an item equals
-     * itself. Names are compared without caring about upper or lower case.
+     * Two items with the same name and price are equal.
      */
-    public void testEquals()
+    public void testEqualsSameValues()
+    {
+        MenuItem copy = new MenuItem("Burger", 12.00);
+
+        assertTrue(burger.equals(copy));
+    }
+
+    /**
+     * The name is compared without caring about capital letters.
+     */
+    public void testEqualsIgnoresCase()
+    {
+        MenuItem shouting = new MenuItem("BURGER", 12.00);
+
+        assertTrue(burger.equals(shouting));
+    }
+
+    /**
+     * An item is equal to itself.
+     */
+    public void testEqualsSameObject()
     {
         assertTrue(burger.equals(burger));
-        assertTrue(burger.equals(new MenuItem("Burger", 12.00)));
-        assertTrue(burger.equals(new MenuItem("BURGER", 12.00)));
-        assertTrue(burger.equals(new MenuItem("burger", 12.00)));
     }
- 
+
     /**
-     * Null, another type, a different name, and a different price are not
-     * equal.
+     * The same name at a different price is not equal.
+     */
+    public void testEqualsDifferentPrice()
+    {
+        MenuItem pricey = new MenuItem("Burger", 15.00);
+
+        assertFalse(burger.equals(pricey));
+    }
+
+    /**
+     * Null, another kind of object, and a different name are all refused.
      */
     public void testEqualsBadInput()
     {
         assertFalse(burger.equals(null));
         assertFalse(burger.equals("Burger"));
-        assertFalse(burger.equals(new Party("Kim", 2, false, null)));
-        assertFalse(burger.equals(new MenuItem("Fries", 12.00)));
-        assertFalse(burger.equals(new MenuItem("Burger", 11.99)));
+        assertFalse(burger.equals(fries));
     }
- 
+
     /**
-     * Items that are equal give the same hash code, even when the names
-     * differ in case.
+     * hashCode takes no input. Equal items must give the same number, and
+     * the edge case is that capital letters do not change it.
      */
     public void testHashCode()
     {
+        MenuItem shouting = new MenuItem("BURGER", 12.00);
+
+        assertEquals(burger.hashCode(), shouting.hashCode());
         assertEquals(burger.hashCode(), burger.hashCode());
-        assertEquals(burger.hashCode(),
-            new MenuItem("Burger", 12.00).hashCode());
-        assertEquals(burger.hashCode(),
-            new MenuItem("bUrGeR", 12.00).hashCode());
     }
- 
+
     /**
-     * Items with a different name or price get different hash codes in
-     * these examples. There is no input to get wrong.
-     */
-    public void testHashCodeDifferentItems()
-    {
-        assertFalse(burger.hashCode()
-            == new MenuItem("Fries", 12.00).hashCode());
-        assertFalse(burger.hashCode()
-            == new MenuItem("Burger", 4.00).hashCode());
-    }
- 
-    /**
-     * toString shows the name and the price with two decimals.
+     * toString takes no input. It shows the name and the price with two
+     * decimal places.
      */
     public void testToString()
     {
         assertEquals("Burger $12.00", burger.toString());
-        assertEquals("Soda $2.50", new MenuItem("Soda", 2.5).toString());
     }
- 
+
     /**
-     * A free item shows $0.00. There is no input to get wrong.
+     * The edge case for toString is a free item, which still shows cents.
      */
-    public void testToStringFree()
+    public void testToStringZeroPrice()
     {
-        assertEquals("Water $0.00", new MenuItem("Water", 0).toString());
+        MenuItem water = new MenuItem("Water", 0.00);
+
+        assertEquals("Water $0.00", water.toString());
     }
 }

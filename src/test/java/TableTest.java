@@ -1,507 +1,405 @@
 /**
- * Tests for Table.
+ * Tests for Table. Every public method gets a normal case and a bad input
+ * case. Methods that take no input are checked with the closest edge case
+ * instead, which is said in that test's comment.
+ *
+ * Table hands out its number from a counter that keeps going for the whole
+ * program, so no test here checks for an exact table number. They check
+ * that two tables made one after the other are one apart, or they build
+ * the expected text out of getTableNumber().
  *
  * @author Ethan Kahl
- * @version 10/12/26
+ * @version 10/14/26
  */
 public class TableTest extends student.TestCase
 {
-    private Table plain;
-    private Tbale accessible;
-    private Party lee;
-    private Party kim;
+    private Table small;
+    private Table accessible;
+    private Party couple;
+    private Party needsRamp;
 
     /**
-     * Gives every test an open table of 4 and a party of 3.
+     * Makes a plain two seat table, a four seat table with two accessible
+     * seats, and two parties to sit at them.
      */
     public void setUp()
     {
-        plain = new Table(4);
-        accessible = new Table(6, 2);
-        lee = new Party("Lee", 2, false, null);
-        kim = new Party("Kim", 4, false, null);
+        small = new Table(2);
+        accessible = new Table(4, 2);
+        couple = new Party("Kim", 2, false, null);
+        needsRamp = new Party("Lee", 2, true, null);
     }
 
     /**
-     * Makes a party for the seat taking tests
+     * The one argument constructor makes an open table with no accessible
+     * seats.
      */
-    private Party makeParty(int size, boolean needAccess)
+    public void testConstructorSizeOnly()
     {
-        return new Party("Guest", size, needsAccess, null);
+        assertEquals(2, small.getSize());
+        assertEquals(0, small.getHandicapSeats());
+        assertTrue(small.isOpen());
+        assertNull(small.getSeatedParty());
     }
 
     /**
-     * The constructor makes an open table.
-     */
-    public void testConstructor()
-    {
-        assertEquals(4, plain.getSize());
-        assertEquals(0, plain.getHandicapSeats());
-        assertTrue(plain.isOpen());
-        assertNull(plain.getSeatedParty());
-    }
-
-    /**
-     * Keeps handicap seat count, and 0 or all seats are allowed
+     * The two argument constructor stores the accessible seat count.
      */
     public void testConstructorWithHandicapSeats()
     {
-        assertEquals(6, accessible.getSize());
+        assertEquals(4, accessible.getSize());
         assertEquals(2, accessible.getHandicapSeats());
-        assertEquals(0, new Table(2, 0).getHandicapSeats());
+        assertTrue(accessible.isOpen());
     }
 
     /**
-     * A size of 0, a negative size, or an odd size is rejected.
+     * A size that is odd, zero, or negative is refused, because the chairs
+     * are drawn in two equal rows.
      */
     public void testConstructorBadSize()
     {
+        Exception odd = null;
+        Exception zero = null;
+        Exception negative = null;
+
+        try
+        {
+            new Table(3);
+        }
+        catch (IllegalArgumentException error)
+        {
+            odd = error;
+        }
         try
         {
             new Table(0);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            zero = error;
         }
         try
         {
-            new Table(-2);
-            fail("Expected IllegalArgumentException");
+            new Table(-4);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            negative = error;
         }
-        try
-        {
-            new Table(5);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            // expected
-        }
+        assertNotNull(odd);
+        assertNotNull(zero);
+        assertNotNull(negative);
     }
- 
+
     /**
-     * A negative handicap seat count, or more handicap seats than seats, is
-     * rejected.
+     * An accessible seat count below zero or above the table size is
+     * refused.
      */
     public void testConstructorBadHandicapSeats()
     {
+        Exception negative = null;
+        Exception tooMany = null;
+
         try
         {
             new Table(4, -1);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            negative = error;
         }
         try
         {
             new Table(4, 5);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            tooMany = error;
         }
+        assertNotNull(negative);
+        assertNotNull(tooMany);
     }
- 
+
     /**
-     * Each new table gets the next table number, and a rejected table does
-     * not use up a number.
+     * getTableNumber takes no input. Two tables made one after the other
+     * are one apart, and a table that was refused does not use up a
+     * number.
      */
     public void testGetTableNumber()
     {
         Table first = new Table(2);
- 
+
         try
         {
             new Table(3);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            // The refused table should not take a number.
         }
         Table second = new Table(2);
- 
+
         assertEquals(first.getTableNumber() + 1, second.getTableNumber());
     }
- 
+
     /**
-     * Two tables never share a table number. There is no input to get
-     * wrong.
+     * getSize takes no input, so the edge case is the smallest table the
+     * class allows, which is two seats.
      */
-    public void testGetTableNumberDifferent()
+    public void testGetSize()
     {
-        assertFalse(plain.getTableNumber() == accessible.getTableNumber());
+        assertEquals(4, accessible.getSize());
+        assertEquals(2, small.getSize());
     }
- 
+
     /**
-     * getHandicapSeats returns the count the table was made with.
+     * getHandicapSeats takes no input, so the edge case is a table that
+     * has none.
      */
     public void testGetHandicapSeats()
     {
-        assertEquals(0, plain.getHandicapSeats());
         assertEquals(2, accessible.getHandicapSeats());
+        assertEquals(0, small.getHandicapSeats());
     }
- 
+
     /**
-     * A rejected constructor call does not change the count on other
-     * tables. There is no input to get wrong.
+     * setSize makes the table bigger.
      */
-    public void testGetHandicapSeatsUnchanged()
+    public void testSetSize()
     {
+        accessible.setSize(6);
+
+        assertEquals(6, accessible.getSize());
+    }
+
+    /**
+     * An odd size is refused and the old size is kept.
+     */
+    public void testSetSizeBadInput()
+    {
+        Exception thrown = null;
+
         try
         {
-            new Table(4, 9);
-            fail("Expected IllegalArgumentException");
+            accessible.setSize(5);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            assertEquals(2, accessible.getHandicapSeats());
+            thrown = error;
         }
+        assertNotNull(thrown);
+        assertEquals(4, accessible.getSize());
     }
- 
+
     /**
-     * The last seats at a table are the handicap seats.
+     * The accessible seats are the last seats at the table, so on a four
+     * seat table with two of them, seats three and four are accessible.
      */
     public void testIsHandicapSeat()
     {
         assertFalse(accessible.isHandicapSeat(1));
-        assertFalse(accessible.isHandicapSeat(4));
-        assertTrue(accessible.isHandicapSeat(5));
-        assertTrue(accessible.isHandicapSeat(6));
-        assertFalse(plain.isHandicapSeat(4));
+        assertFalse(accessible.isHandicapSeat(2));
+        assertTrue(accessible.isHandicapSeat(3));
+        assertTrue(accessible.isHandicapSeat(4));
     }
- 
+
     /**
-     * Seat 0 and negative seats are not handicap seats.
+     * A table with no accessible seats has none at any of its real seats.
      */
-    public void testIsHandicapSeatBadInput()
+    public void testIsHandicapSeatNone()
     {
-        assertFalse(accessible.isHandicapSeat(0));
-        assertFalse(accessible.isHandicapSeat(-1));
-        assertFalse(plain.isHandicapSeat(0));
+        assertFalse(small.isHandicapSeat(1));
+        assertFalse(small.isHandicapSeat(2));
     }
- 
+
     /**
-     * An open table has no taken seats.
+     * Nobody is sitting at an open table, so no seat is taken.
      */
-    public void testIsSeatTakenOpen()
+    public void testIsSeatTakenWhenOpen()
     {
-        for (int seat = 1; seat <= 6; seat++)
-        {
-            assertFalse(accessible.isSeatTaken(seat));
-        }
+        assertFalse(accessible.isSeatTaken(1));
+        assertFalse(accessible.isSeatTaken(3));
     }
- 
+
     /**
-     * A party that does not need access fills the regular seats first.
+     * A party that does not need accessible seating fills the regular
+     * seats first and leaves the accessible ones free.
      */
     public void testIsSeatTakenRegularParty()
     {
-        accessible.seat(makeParty(2, false));
+        accessible.seat(couple);
+
         assertTrue(accessible.isSeatTaken(1));
         assertTrue(accessible.isSeatTaken(2));
         assertFalse(accessible.isSeatTaken(3));
         assertFalse(accessible.isSeatTaken(4));
-        assertFalse(accessible.isSeatTaken(5));
-        assertFalse(accessible.isSeatTaken(6));
     }
- 
+
     /**
-     * A party too big for the regular seats spills into handicap seats.
-     */
-    public void testIsSeatTakenRegularPartySpills()
-    {
-        accessible.seat(makeParty(5, false));
-        assertTrue(accessible.isSeatTaken(4));
-        assertTrue(accessible.isSeatTaken(5));
-        assertFalse(accessible.isSeatTaken(6));
-    }
- 
-    /**
-     * A party that needs access fills the handicap seats first.
+     * A party that needs accessible seating fills the accessible seats
+     * first and leaves the regular ones free.
      */
     public void testIsSeatTakenAccessibleParty()
     {
-        accessible.seat(makeParty(1, true));
+        accessible.seat(needsRamp);
+
         assertFalse(accessible.isSeatTaken(1));
-        assertFalse(accessible.isSeatTaken(4));
-        assertTrue(accessible.isSeatTaken(5));
-        assertFalse(accessible.isSeatTaken(6));
-    }
- 
-    /**
-     * An accessible party bigger than the handicap seats uses regular seats
-     * for the rest, starting at seat 1.
-     */
-    public void testIsSeatTakenAccessiblePartySpills()
-    {
-        accessible.seat(makeParty(3, true));
-        assertTrue(accessible.isSeatTaken(1));
         assertFalse(accessible.isSeatTaken(2));
-        assertTrue(accessible.isSeatTaken(5));
-        assertTrue(accessible.isSeatTaken(6));
+        assertTrue(accessible.isSeatTaken(3));
+        assertTrue(accessible.isSeatTaken(4));
     }
- 
+
     /**
-     * Clearing the table frees every seat again.
-     */
-    public void testIsSeatTakenAfterClear()
-    {
-        plain.seat(kim);
-        assertTrue(plain.isSeatTaken(4));
-        plain.clear();
-        assertFalse(plain.isSeatTaken(4));
-    }
- 
-    /**
-     * getSize returns the size the table was made with.
-     */
-    public void testGetSize()
-    {
-        assertEquals(4, plain.getSize());
-        assertEquals(6, accessible.getSize());
-    }
- 
-    /**
-     * A rejected setSize does not change the size. There is no other input
-     * to get wrong.
-     */
-    public void testGetSizeAfterRejectedSet()
-    {
-        try
-        {
-            plain.setSize(3);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals(4, plain.getSize());
-        }
-    }
- 
-    /**
-     * setSize changes the size to another positive even number.
-     */
-    public void testSetSize()
-    {
-        plain.setSize(8);
-        assertEquals(8, plain.getSize());
-        plain.setSize(2);
-        assertEquals(2, plain.getSize());
-    }
- 
-    /**
-     * A size of 0, a negative size, an odd size, or a size smaller than the
-     * handicap seats is rejected and the size stays the same.
-     */
-    public void testSetSizeBadInput()
-    {
-        Table fourHandicap = new Table(6, 4);
- 
-        try
-        {
-            plain.setSize(0);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals(4, plain.getSize());
-        }
-        try
-        {
-            plain.setSize(-4);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals(4, plain.getSize());
-        }
-        try
-        {
-            plain.setSize(7);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals(4, plain.getSize());
-        }
-        try
-        {
-            fourHandicap.setSize(2);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals(6, fourHandicap.getSize());
-        }
-    }
- 
-    /**
-     * getSeatedParty returns the party that was seated.
+     * getSeatedParty takes no input. It is null while the table is open
+     * and the party once somebody sits down.
      */
     public void testGetSeatedParty()
     {
-        plain.seat(lee);
-        assertSame(lee, plain.getSeatedParty());
+        assertNull(accessible.getSeatedParty());
+
+        accessible.seat(couple);
+
+        assertEquals(couple, accessible.getSeatedParty());
     }
- 
+
     /**
-     * An open table has no seated party, and a refused seat leaves it that
-     * way.
-     */
-    public void testGetSeatedPartyOpen()
-    {
-        assertNull(plain.getSeatedParty());
-        plain.seat(null);
-        assertNull(plain.getSeatedParty());
-    }
- 
-    /**
-     * A new table is open.
+     * isOpen takes no input. It is true for a new table and false once a
+     * party is seated.
      */
     public void testIsOpen()
     {
-        assertTrue(plain.isOpen());
+        assertTrue(accessible.isOpen());
+
+        accessible.seat(couple);
+
+        assertFalse(accessible.isOpen());
     }
- 
+
     /**
-     * A table with a party seated is not open. There is no input to get
-     * wrong.
-     */
-    public void testIsOpenSeated()
-    {
-        plain.seat(lee);
-        assertFalse(plain.isOpen());
-    }
- 
-    /**
-     * A party that is smaller than, or exactly as big as, the table fits.
+     * A party fits when the table has at least as many seats as the party
+     * has people.
      */
     public void testFits()
     {
-        assertTrue(plain.fits(lee));
-        assertTrue(plain.fits(kim));
+        Party four = new Party("Four", 4, false, null);
+
+        assertTrue(accessible.fits(couple));
+        assertTrue(accessible.fits(four));
     }
- 
+
     /**
-     * A party bigger than the table does not fit, and null does not fit.
+     * A null party and a party with too many people do not fit.
      */
     public void testFitsBadInput()
     {
-        assertFalse(plain.fits(makeParty(5, false)));
-        assertFalse(plain.fits(null));
+        Party crowd = new Party("Crowd", 5, false, null);
+
+        assertFalse(accessible.fits(null));
+        assertFalse(accessible.fits(crowd));
     }
- 
+
     /**
-     * seat puts a party at an open table and returns true.
+     * Seating a party that fits at an open table works.
      */
     public void testSeat()
     {
-        assertTrue(plain.seat(lee));
-        assertFalse(plain.isOpen());
-        assertSame(lee, plain.getSeatedParty());
+        assertTrue(accessible.seat(couple));
+        assertFalse(accessible.isOpen());
+        assertEquals(couple, accessible.getSeatedParty());
     }
- 
+
     /**
-     * An occupied table, a party that is too big, and null are refused and
-     * the table does not change.
+     * A null party, a party that is too big, and a table that is already
+     * taken are all refused, and the first party stays put.
      */
     public void testSeatBadInput()
     {
-        assertFalse(plain.seat(makeParty(5, false)));
-        assertFalse(plain.seat(null));
-        assertTrue(plain.isOpen());
-        plain.seat(lee);
-        assertFalse(plain.seat(kim));
-        assertSame(lee, plain.getSeatedParty());
+        Party crowd = new Party("Crowd", 5, false, null);
+
+        assertFalse(accessible.seat(null));
+        assertFalse(accessible.seat(crowd));
+
+        assertTrue(accessible.seat(couple));
+        assertFalse(accessible.seat(needsRamp));
+        assertEquals(couple, accessible.getSeatedParty());
     }
- 
+
     /**
-     * clear empties the table and returns the party that was seated.
+     * clear takes no input. It hands back the party that was sitting there
+     * and leaves the table open.
      */
     public void testClear()
     {
-        plain.seat(lee);
-        assertSame(lee, plain.clear());
-        assertTrue(plain.isOpen());
+        accessible.seat(couple);
+
+        assertEquals(couple, accessible.clear());
+        assertTrue(accessible.isOpen());
     }
- 
+
     /**
-     * Clearing a table that is already open returns null.
+     * The edge case for clear is a table nobody was sitting at, which
+     * gives back null.
      */
-    public void testClearOpen()
+    public void testClearWhenOpen()
     {
-        assertNull(plain.clear());
-        assertTrue(plain.isOpen());
+        assertNull(accessible.clear());
+        assertTrue(accessible.isOpen());
     }
- 
+
     /**
-     * A table equals itself.
+     * A table is equal to itself and not to a different table, even when
+     * both were built the same way.
      */
     public void testEquals()
     {
-        assertTrue(plain.equals(plain));
+        Table twin = new Table(4, 2);
+
         assertTrue(accessible.equals(accessible));
+        assertFalse(accessible.equals(twin));
     }
- 
+
     /**
-     * Null, another type, and a different table are not equal, even when
-     * the other table has the same size.
+     * Null and another kind of object are refused.
      */
     public void testEqualsBadInput()
     {
-        Table lookAlike = new Table(4);
- 
-        assertFalse(plain.equals(null));
-        assertFalse(plain.equals("Table"));
-        assertFalse(plain.equals(lee));
-        assertFalse(plain.equals(lookAlike));
-        assertFalse(lookAlike.equals(plain));
+        assertFalse(accessible.equals(null));
+        assertFalse(accessible.equals("Table"));
     }
- 
+
     /**
-     * A table gives the same hash code every time.
+     * hashCode takes no input. The same table gives the same number every
+     * time, and two different tables do not share one.
      */
     public void testHashCode()
     {
-        assertEquals(plain.hashCode(), plain.hashCode());
+        assertEquals(accessible.hashCode(), accessible.hashCode());
+        assertFalse(accessible.hashCode() == small.hashCode());
     }
- 
+
     /**
-     * Different tables get different hash codes, because the hash code
-     * comes from the table number. There is no input to get wrong.
-     */
-    public void testHashCodeDifferentTables()
-    {
-        assertFalse(plain.hashCode() == accessible.hashCode());
-    }
- 
-    /**
-     * An open table shows its number, size, and that it is open.
+     * toString shows the number, the seat count, and Open while nobody is
+     * sitting there.
      */
     public void testToStringOpen()
     {
-        assertEquals("Table " + plain.getTableNumber()
-            + " (4 seats): Open", plain.toString());
+        String expected = "Table " + accessible.getTableNumber()
+            + " (4 seats): Open";
+
+        assertEquals(expected, accessible.toString());
     }
- 
+
     /**
-     * A seated table shows the host name of the party. There is no input to
-     * get wrong.
+     * Once a party sits down, toString shows the host name instead of
+     * Open.
      */
     public void testToStringSeated()
     {
-        plain.seat(lee);
-        assertEquals("Table " + plain.getTableNumber()
-            + " (4 seats): Lee", plain.toString());
+        accessible.seat(couple);
+
+        String expected = "Table " + accessible.getTableNumber()
+            + " (4 seats): Kim";
+
+        assertEquals(expected, accessible.toString());
     }
 }

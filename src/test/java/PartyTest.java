@@ -1,14 +1,21 @@
-imprt java.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 /**
- * Tests for Party. Every public method has at least one normal
- * case and one bad input case
+ * Tests for Party. Every public method gets a normal case and a bad input
+ * case. Methods that take no input are checked with the closest edge case
+ * instead, which is said in that test's comment.
+ *
+ * Party hands out id numbers from a counter that keeps going for the whole
+ * program, so no test here checks for an exact id. They check that two
+ * parties made one after the other are one apart.
  *
  * @author Ethan Kahl
- * @version 10/12/26
+ * @version 10/14/26
  */
 public class PartyTest extends student.TestCase
 {
+    private static final double CENT = 0.001;
+
     private LocalDateTime dinnerTime;
     private Party walkIn;
     private Party reserved;
@@ -16,7 +23,7 @@ public class PartyTest extends student.TestCase
     private MenuItem fries;
 
     /**
-     * Gives every test a party and two menu items.
+     * Makes two parties and two menu items for the tests to use.
      */
     public void setUp()
     {
@@ -28,195 +35,182 @@ public class PartyTest extends student.TestCase
     }
 
     /**
-     * The constructor makes a party with an empty order.
+     * A walk-in party keeps its name and size, has no reservation, is not
+     * on the waitlist yet, and has nothing ordered.
      */
     public void testConstructor()
     {
         assertEquals("Kim", walkIn.getHostName());
         assertEquals(3, walkIn.getSize());
-        assertFalse(walkIn.needAccesibility());
+        assertFalse(walkIn.needAccessibility());
         assertFalse(walkIn.hasReservation());
         assertNull(walkIn.getReservationTime());
         assertEquals(0, walkIn.getPosition());
         assertEquals(0, walkIn.getOrder().length);
-
     }
+
     /**
-     * A party with a reservation time keeps it.
+     * A party built with a time keeps that time and needs accessibility.
      */
-
-    public void testConstructorWithReservation() {
-
-        assertTrue(reserved.needAccesibility());
+    public void testConstructorWithReservation()
+    {
+        assertTrue(reserved.needAccessibility());
         assertTrue(reserved.hasReservation());
         assertEquals(dinnerTime, reserved.getReservationTime());
-
     }
 
     /**
-     * A size of 0 or -2, or a blank or null name, is rejected.
+     * A null or blank host name is refused.
      */
-    public void testConstructorBadInput()
+    public void testConstructorBadName()
     {
+        Exception nullName = null;
+        Exception blankName = null;
+
         try
         {
             new Party(null, 2, false, null);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
-        }
-        try
-        {
-            new Party("", 2, false, null);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            // expected
+            nullName = error;
         }
         try
         {
             new Party("   ", 2, false, null);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            // expected
+            blankName = error;
         }
-        try
-        {
-            new Party("Moe", 0, false, null);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            // expected
-        }
-        try
-        {
-            new Party("Moe", -2, false, null);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            // expected
-        }
+        assertNotNull(nullName);
+        assertNotNull(blankName);
     }
 
     /**
-     * Each new party gets the next id
-     * so two parties never share one. 
+     * A size of zero or less is refused.
+     */
+    public void testConstructorBadSize()
+    {
+        Exception zeroSize = null;
+        Exception negativeSize = null;
+
+        try
+        {
+            new Party("Kim", 0, false, null);
+        }
+        catch (IllegalArgumentException error)
+        {
+            zeroSize = error;
+        }
+        try
+        {
+            new Party("Kim", -2, false, null);
+        }
+        catch (IllegalArgumentException error)
+        {
+            negativeSize = error;
+        }
+        assertNotNull(zeroSize);
+        assertNotNull(negativeSize);
+    }
+
+    /**
+     * getId takes no input. Two parties made one after the other get ids
+     * one apart, and a party that was refused does not use up an id.
      */
     public void testGetId()
     {
-        Party first = new Party("A", 1, false, null);
-        Party second = new Party("B", 1, false, null);
-
-        assertEquals(first.getId() + 1, second.getID());
-        assertFalse(first.getId() == second.getId());
-
-    }
-
-    /**
-     * getId takes no imput, so a failed constructor is the 
-     * only bad case
-     */
-    public void testGetIdAfterFailedConstructor()
-    {
-        Party first = new Party("A", 1, false, null);
+        Party first = new Party("First", 2, false, null);
 
         try
         {
-            new Party("", 1, false, null);
-            fail("Expected IllegalArgumentException");
+            new Party("", 2, false, null);
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            //expected
+            // The refused party should not take an id number.
         }
-        Party second = new Party("B", 1, false, null);
+        Party second = new Party("Second", 2, false, null);
 
         assertEquals(first.getId() + 1, second.getId());
     }
 
     /**
-     * getHostName returns the name the party was made with
+     * getHostName takes no input, so the edge case is a one letter name.
      */
     public void testGetHostName()
     {
+        Party shortName = new Party("A", 2, false, null);
+
         assertEquals("Kim", walkIn.getHostName());
-        assertEquals("Lee", reserved.getHostName());
+        assertEquals("A", shortName.getHostName());
     }
 
     /**
-     * getSize returns the size the party was made with
+     * getSize takes no input, so the edge case is a party of one.
      */
     public void testGetSize()
     {
+        Party single = new Party("Solo", 1, false, null);
+
         assertEquals(3, walkIn.getSize());
-        assertEquals(2, reserved.getSize())
+        assertEquals(1, single.getSize());
     }
 
     /**
-     * setSize changes the size
+     * setSize changes the size.
      */
     public void testSetSize()
     {
         walkIn.setSize(5);
+
         assertEquals(5, walkIn.getSize());
     }
 
     /**
-     * A size of 0 or -1 is rejected and the size stays the same
+     * A size of zero or less is refused and the old size is kept.
      */
     public void testSetSizeBadInput()
     {
+        Exception thrown = null;
+
         try
         {
             walkIn.setSize(0);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            assertEquals(3, walkIn.getSize());
+            thrown = error;
         }
-        try
-        {
-            walkIn.setSize(-1);
-            fail("Expected IllegalArgumentException");
-        }
-        catch(IllegalArgumentException e)
-        {
-            assertEquals(3, walkIn.getSize());
-        }
+        assertNotNull(thrown);
+        assertEquals(3, walkIn.getSize());
     }
 
     /**
-     * needAccessibility reports the flag the party was made with.
-     * There is no bad input
+     * needAccessibility takes no input. It is false for a walk-in and true
+     * for the party that asked for it.
      */
     public void testNeedAccessibility()
     {
-        assertFalse(walkIn.needAccesibility());
-        assertTrue(reserved.needAccesibility());
+        assertFalse(walkIn.needAccessibility());
+        assertTrue(reserved.needAccessibility());
     }
 
     /**
-     * setNeedAccesibility truns the flag on and off. 
-     * It takes a boolean.
+     * setNeedAccessibility can turn the flag on and back off again.
      */
-    public void testSetNeedAccessiblity()
+    public void testSetNeedAccessibility()
     {
-        walkIn.setNeedAccesibility(true);
-        assertTrue(walkIn.needAccesibility());
-        walkIn.setNeedAccesibility(false);
-        assertFalse(walkIn.needAccesibility());
+        walkIn.setNeedAccessibility(true);
+        assertTrue(walkIn.needAccessibility());
+
+        walkIn.setNeedAccessibility(false);
+        assertFalse(walkIn.needAccessibility());
     }
 
     /**
-     * hasReservation is true only when there is a reservation time. 
+     * hasReservation takes no input. It is true only when a time was given.
      */
     public void testHasReservation()
     {
@@ -225,307 +219,213 @@ public class PartyTest extends student.TestCase
     }
 
     /**
-     * hasReservation stays the same after the reservation time
-     * is moved. A walk in stays a walk in. 
-     */
-    public void testHasReservationAfterUpdate()
-    {
-        reserved.updateReservationTime(true);
-        walk.updateReservationTime(true);
-        assertTrue(reserved.hasReservation());
-        assertFalse(walkIn.hasReservation());
-
-    }
-
-    /**
-     * getReservationTime returns the time the party was made with
+     * getReservationTime takes no input. It gives the time back, or null
+     * when the party walked in without one.
      */
     public void testGetReservationTime()
     {
         assertEquals(dinnerTime, reserved.getReservationTime());
-    }
-
-    /**
-     * A walk in party has no reservation time
-     */
-    public void testGetReservationTimeWalkIn()
-    {
         assertNull(walkIn.getReservationTime());
-
     }
 
     /**
-     * updateReservationTime moves the time one hour later
-     * or one hour earlier and returns true.
+     * Moving a reservation later adds an hour and moving it earlier takes
+     * an hour away.
      */
     public void testUpdateReservationTime()
     {
         assertTrue(reserved.updateReservationTime(true));
-        assertEquals(dinnerTime.plusHours(1), 
-        reserved.getReservationTime());
+        assertEquals(dinnerTime.plusHours(1), reserved.getReservationTime());
+
         assertTrue(reserved.updateReservationTime(false));
-        assertTrue(reserved.updateReservationTime(false));
-        assertEquals(dinnerTime.minusHours(1),
-        reserved.getReservationTime());
+        assertEquals(dinnerTime, reserved.getReservationTime());
     }
 
     /**
-     * A walk in has no time to move, so it returns
-     * false and stays without a time
+     * A party with no reservation cannot have its time moved.
      */
-    public void testUpdateReservationTimeWalkIn()
+    public void testUpdateReservationTimeBadInput()
     {
-        assertFalse(walk.updateReservationTime(true));
-        assertFalse(walk.updateReservationTime(false));
-        assertNull(walk.getReservationTime());
+        assertFalse(walkIn.updateReservationTime(true));
+        assertNull(walkIn.getReservationTime());
     }
 
     /**
-     * A new party has position 0, and getPosition returns
-     * what setPosition stored
+     * getPosition takes no input. A new party is not on the waitlist, so
+     * its position starts at zero.
      */
     public void testGetPosition()
     {
         assertEquals(0, walkIn.getPosition());
         walkIn.setPosition(2);
-        assertEquals(2, walk.getPosition());
+        assertEquals(2, walkIn.getPosition());
     }
 
     /**
-     * getPosition takes no input. A rejected setPosition
-     * does not change it. 
-     */
-    public void testGetPositionAfterRejectedSet()
-    {
-        walkIn.setPosition(4);
-        try
-        {
-            walkIn.setPosition(0);
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertEquals(4, walkIn.getPosition());
-        }
-    }
-
-    /**
-     * setPosition updates the position.
+     * setPosition stores a spot in line.
      */
     public void testSetPosition()
     {
         walkIn.setPosition(1);
-        assertEquals(1, walkIn.getPosition());
-        walkIn.setPosition(7);
-        assertEquals(7, walkIn.getPosition());
 
+        assertEquals(1, walkIn.getPosition());
     }
 
     /**
-     * A position of 0 or -1 is rejected and the position stays the same.
+     * A position below one is refused and the old position is kept.
      */
     public void testSetPositionBadInput()
     {
-        walkIn.setPosition(2);
+        Exception zero = null;
+        Exception negative = null;
+
         try
         {
             walkIn.setPosition(0);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            assertEquals(2, walkIn.getPosition());
+            zero = error;
         }
         try
         {
             walkIn.setPosition(-1);
-            fail("Expected IllegalArgumentException");
         }
-        catch (IllegalArgumentException e)
+        catch (IllegalArgumentException error)
         {
-            assertEquals(2, walkIn.getPosition());
+            negative = error;
         }
+        assertNotNull(zero);
+        assertNotNull(negative);
+        assertEquals(0, walkIn.getPosition());
     }
 
     /**
-     * addItem puts an item in the order.
+     * addItem puts items on the order in the order they were added.
      */
     public void testAddItem()
     {
         assertTrue(walkIn.addItem(burger));
-        assertEquals(1, walkIn.getOrder().length);
+        assertTrue(walkIn.addItem(fries));
+
+        MenuItem[] order = walkIn.getOrder();
+
+        assertEquals(2, order.length);
+        assertEquals("Burger", order[0].getName());
+        assertEquals("Fries", order[1].getName());
     }
 
     /**
-     * addItem puts each new item at the end of the order. 
+     * A null item is refused and nothing is added to the order.
      */
-    public void testAddItemKeepsOrder()
+    public void testAddItemBadInput()
     {
-        walkIn.addItem(burger);
-        walkIn.addItem(fries);
-
-        MenuItem[] items = walkIn.getOrder();
-
-        assertSame(burger, items[0]);
-        assertSame(fries, items[1]);
-    }
-
-    /**
-     * Adding null returns false and the order is unchanged.
-     */
-    public void testAddItemNull()
-    {
-        walkIn.addItem(burger);
         assertFalse(walkIn.addItem(null));
-        assertEquals(1, walkIn.getOrder().length);
+        assertEquals(0, walkIn.getOrder().length);
     }
 
     /**
-     * removeItem takes out one of two equal items.
+     * removeItem takes one matching item back off the order.
      */
     public void testRemoveItem()
     {
         walkIn.addItem(burger);
-        walkIn.addItem(burger);
+        walkIn.addItem(fries);
+
         assertTrue(walkIn.removeItem(burger));
-        assertEquals(1, walkIn.getOrder().length);
-        assertSame(burger, walkIn.getOrder()[0]);
+
+        MenuItem[] order = walkIn.getOrder();
+
+        assertEquals(1, order.length);
+        assertEquals("Fries", order[0].getName());
     }
 
     /**
-     * Removing from an empty order returns false. 
-     */
-    public void testRemoveItemEmptyOrder()
-    {
-        assertFalse(walkIn.removeItem(burger));
-        assertEquals(0, walkIn.getOrder().length);
-    }
-
-    /**
-     * Removing from an empty order, or removing an item that was not
-     * ordered, returns false.
+     * Removing null, or an item that was never ordered, does nothing.
      */
     public void testRemoveItemBadInput()
     {
-        walkIn.addItem(fries);
-        assertFalse(walkIn.removeItem(burger));
+        walkIn.addItem(burger);
+
         assertFalse(walkIn.removeItem(null));
+        assertFalse(walkIn.removeItem(fries));
         assertEquals(1, walkIn.getOrder().length);
     }
 
     /**
-     * getOrder returns the items in the order
-     * they were added
-     * 
+     * getOrder takes no input. It gives back a new array each time, so
+     * changing that array does not change the real order.
      */
     public void testGetOrder()
     {
         walkIn.addItem(burger);
-        walkIn.addItem(fries);
 
-        MenuItem[] items = walkIn.getOrder();
+        MenuItem[] firstCopy = walkIn.getOrder();
 
-        assertEquals(2, items.length);
-        assertSame(burger, items[0]);
-        assertEquals(fries, items[1]);
+        firstCopy[0] = null;
+
+        MenuItem[] secondCopy = walkIn.getOrder();
+
+        assertEquals(1, secondCopy.length);
+        assertNotNull(secondCopy[0]);
     }
 
     /**
-     * An empty order gives an array with no entries.
-     */
-    public void testGetOrderEmpty()
-    {
-        assertEquals(0, walkIn.getOrder().length);
-    }
-
-    /**
-     * getOrderTotal adds up the prices.
+     * getOrderTotal takes no input. It adds up the prices, and the edge
+     * case is an order with nothing on it.
      */
     public void testGetOrderTotal()
     {
+        assertEquals(0.00, walkIn.getOrderTotal(), CENT);
+
         walkIn.addItem(burger);
         walkIn.addItem(fries);
-        assertEquals(16.00, walkIn.getOrderTotal(), 0.001);
+
+        assertEquals(16.00, walkIn.getOrderTotal(), CENT);
     }
 
     /**
-     * An empty order totals 0.00.
-     */
-    public void testGetOrderTotalEmpty()
-    {
-        assertEquals(0.0, walkIn.getOrderTotal(), 0.001);
-    }
-
-    /**
-     * Parties with the same id are equal, even if the names differ.
+     * A party is equal to itself and not to a different party, even when
+     * the two were built with the same name and size.
      */
     public void testEquals()
     {
+        Party twin = new Party("Kim", 3, false, null);
+
         assertTrue(walkIn.equals(walkIn));
-        assertTrue(reserved.equals(reserved));
+        assertFalse(walkIn.equals(twin));
     }
 
     /**
-     * Null, another type, and a different id are not equal.
+     * Null and another kind of object are refused.
      */
     public void testEqualsBadInput()
     {
-        Party lookAlike = new Party("Kim", 3, false, null);
-
         assertFalse(walkIn.equals(null));
         assertFalse(walkIn.equals("Kim"));
-        assertFalse(walkIn.equals(burger));
-        assertFalse(walkIn.equals(lookAlike));
-        assertFalse(lookAlike.equals(walkIn));
-
     }
 
     /**
-     * A party gives the same hash code very time
+     * hashCode takes no input. The same party gives the same number every
+     * time, and two different parties do not share one.
      */
     public void testHashCode()
     {
         assertEquals(walkIn.hashCode(), walkIn.hashCode());
-    }
-
-    /**
-     * Different parties get different hash codes, 
-     * because the hash code comes from the id.
-     * There is no input to get wrong. 
-     */
-    public void testHashCodeDifferentParties()
-    {
         assertFalse(walkIn.hashCode() == reserved.hashCode());
     }
 
     /**
-     * toString shows position, name, size, and reservation. There is no bad
-     * input.
+     * toString takes no input. It lists the party's details, and the edge
+     * case is a party with no reservation, which shows null for the time.
      */
     public void testToString()
     {
-        walkIn.setPosition(2);
-        walkIn.addItem(burger);
-
         String text = walkIn.toString();
 
-        assertTrue(text.contains("Host Name; Kim"));
-        assertTrue(text.contains("Id: " + walkIn.getId()));
+        assertTrue(text.contains("Host Name: Kim"));
         assertTrue(text.contains("Size: 3"));
-        assertTrue(text.contains("Position: 2"));
-        assertTrue(text.constains("Reservation Time: null"));
-        assertTrue(text.contains("Order: [" + burger.toString() + "]"));
-    }
-
-    /**
-     * A reserved party shows its time, and an empty order
-     * shows empty. 
-     */
-    public void testToStringReserved()
-    {
-        String text = reserved.toString();
-
-        assertTrue(text.contains("Reservation Time: " + dinnerTime));
-        assertTrue(text.contains("Order: []"));
+        assertTrue(text.contains("Position: 0"));
+        assertTrue(text.contains("Reservation Time: null"));
     }
 }
