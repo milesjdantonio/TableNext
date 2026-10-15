@@ -39,7 +39,7 @@ There are 7 test classes and 192 tests.
 | `DisplayTest` | 35 | What each menu and message prints, and the empty-state wording |
 | `TableNextAppTest` | 37 | The typed-input loops, each role's menu, and re-asking on bad input |
 
-
+Every public method of the app classes has at least one normal case and one bad-input case. 
 
 ## Reflection
 
@@ -95,3 +95,12 @@ The team is keeping table-capacity seating and food orders as implemented extens
 | Test files in `src/test/java` | Ethan Kahl — writing and running JUnit tests for normal and bad-input cases. |
 
 ## GenAI Note
+We used claude to help while building this. For the application classes, GenAI helped revise code, 
+and the team member listed in the attribution table reviewed each file before it went in.
+For the test files, Ethan worked with claude and claude code to check that the tests were catching real bugs.
+It broke things on purpose in 34 different ways and confirmed that tests failed every time. 
+Also, for all the test classes claude assisted Ethan with writing all of the java docs and comments
+so that all of the groupmates clearly understood what was happening in that part of the code
+with a clear explanation from claude. This was looked over and reviewed before submitting. 
+I also used it in this README file just to make what I wanted to put under running tests into a table
+for better readability. 
