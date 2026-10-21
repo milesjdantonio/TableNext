@@ -27,13 +27,16 @@ public class Table {
 
     // Handicap seats are the last seats at the table (highest numbers)
     public boolean isHandicapSeat(int seat) {
-        return seat > this.size - this.handicapSeats;
+        // Only seat numbers from 1 through size exist.
+        return seat >= 1 && seat <= this.size
+            && seat > this.size - this.handicapSeats;
     }
 
     // A party fills regular seats first, unless it needs accessibility,
     // in which case it fills the handicap seats first
     public boolean isSeatTaken(int seat) {
-        if (isOpen()) {
+        // Nonexistent seats and seats at an open table are not occupied.
+        if (seat < 1 || seat > this.size || isOpen()) {
             return false;
         }
 
@@ -96,7 +99,9 @@ public class Table {
     }
 
     public boolean seat(Party party) {
-        if (!isOpen() || !fits(party)) {
+        // Enforce accessibility even when callers use Table directly.
+        if (!isOpen() || !fits(party)
+            || (party.needAccessibility() && handicapSeats == 0)) {
             return false;
         }
 
