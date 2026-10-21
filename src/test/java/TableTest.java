@@ -402,4 +402,33 @@ public class TableTest extends student.TestCase
 
         assertEquals(expected, accessible.toString());
     }
+    
+    /** Direct seating must enforce the party's accessibility needs. */
+    public void testSeatRequiresAccessibleTable() {
+        Table regular = new Table(4, 0);
+        Party party = new Party("Accessible", 2, true, null);
+
+        assertFalse(regular.seat(party));
+        assertTrue(regular.isOpen());
+
+        Table suitable = new Table(4, 1);
+        assertTrue(suitable.seat(party));
+        assertSame(party, suitable.getSeatedParty());
+    }
+
+    /** Seat queries must reject numbers outside the table's capacity. */
+    public void testSeatQueriesOutsideTable() {
+        Table table = new Table(4, 2);
+        assertTrue(table.seat(new Party("Kim", 4, false, null)));
+
+        assertFalse(table.isSeatTaken(0));
+        assertFalse(table.isSeatTaken(-1));
+        assertFalse(table.isSeatTaken(5));
+
+        assertFalse(table.isHandicapSeat(0));
+        assertFalse(table.isHandicapSeat(5));
+
+        assertTrue(table.isSeatTaken(4));
+        assertTrue(table.isHandicapSeat(4));
+    }
 }
