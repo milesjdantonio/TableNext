@@ -825,4 +825,13 @@ public class TableNextAppTest extends student.TestCase
         assertTrue(shown().contains("Mar 1,"));
         assertFalse(shown().contains("Feb 28,"));
     }
+    
+    /** Ending input during party entry should exit the app gracefully. */
+    public void testRunHandlesInputEndingMidParty() {
+        startApp(multiline("1", "1", "Kim"));
+
+        app.run();
+
+        assertTrue(shown().contains("Input closed. Goodbye!"));
+    }
 }
