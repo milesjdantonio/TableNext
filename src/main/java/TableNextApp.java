@@ -2,14 +2,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.NoSuchElementException;
+import java.time.format.ResolverStyle;
 import java.util.Scanner;
 
 /** Runs the console menus for hosts, servers, and customers. */
 public class TableNextApp {
     private static final int MAX_PARTY_SIZE = 100;
     private static final DateTimeFormatter RESERVATION_FORMAT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
+        DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm")
+            .withResolverStyle(ResolverStyle.STRICT);
+    
     private final Scanner input;
     private final Restaurant restaurant;
 
