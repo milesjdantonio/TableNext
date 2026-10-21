@@ -559,4 +559,14 @@ public class RestaurantTest extends student.TestCase
         assertSame(accessible, cafe.getWaitlist().peekNext());
         assertEquals(1, accessible.getPosition());
     }
+
+    /** Nonpositive party sizes must not match any open table. */
+    public void testFindOpenTableRejectsNonpositiveSize() {
+        assertNull(cafe.findOpenTable(0));
+        assertNull(cafe.findOpenTable(-2));
+        assertNull(cafe.findOpenTable(0, true));
+
+        // A valid party size must still find a suitable table.
+        assertNotNull(cafe.findOpenTable(2));
+    }
 }
