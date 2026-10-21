@@ -6,10 +6,12 @@ public class MenuItem {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Name cannot be empty");
         }
-        if (price < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
+        // Prices must be finite so order totals remain valid numbers.
+        if (!Double.isFinite(price) || price < 0) {
+            throw new IllegalArgumentException(
+                "Price must be finite and nonnegative");
         }
-
+        
         this.name = name;
         this.price = price;
     }
@@ -30,8 +32,10 @@ public class MenuItem {
     }
 
     public void setPrice(double price) {
-        if (price < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
+        // Validate before assignment to preserve the previous valid price.
+        if (!Double.isFinite(price) || price < 0) {
+            throw new IllegalArgumentException(
+                "Price must be finite and nonnegative");
         }
         this.price = price; 
     }
@@ -53,9 +57,19 @@ public class MenuItem {
 
     @Override
     public int hashCode() {
-        return 31 * this.name.toLowerCase().hashCode() + Double.hashCode(this.price);
-    }
+        // Fold case independently of the system's default locale.
+        int nameHash = 0;
+        for (int codePoint : name.codePoints().toArray()) {
+            int folded = Character.toLowerCase(
+                Character.toUpperCase(codePoint));
+            nameHash = 31 * nameHash + folded;
+        }
 
+        // equals treats positive and negative zero as equal.
+        double normalizedPrice = price == 0.0 ? 0.0 : price;
+        return 31 * nameHash + Double.hashCode(normalizedPrice);
+    }
+    
     @Override
     public String toString() {
         return String.format("%s $%.2f", this.getName(), this.getPrice());
