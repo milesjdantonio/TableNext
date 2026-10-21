@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
  * food menu while Party and Table objects keep their own smaller details.
  */
 public class Restaurant {
-    private Waitlist waitlist;
-    private LinkedChain<Table> tables;
-    private LinkedChain<MenuItem> menu;
+    private final Waitlist waitlist;
+    private final LinkedChain<Table> tables;
+    private final LinkedChain<MenuItem> menu;
 
     /** Creates a restaurant with a small menu that servers can use. */
     public Restaurant() {
