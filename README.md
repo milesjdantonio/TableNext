@@ -70,7 +70,6 @@ Tests live in `src/test/java` and extend the CS 2114 `student.TestCase` (JUnit).
 
 - Data is held in memory only and is lost when the program exits.
 - Estimated wait times and text notifications are not implemented.
-- Seating a party from the waitlist (Host option 7) does not yet check accessibility needs.
 
 ## Credits
 
