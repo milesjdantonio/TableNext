@@ -3,7 +3,7 @@ import java.time.LocalDateTime;
 public class Party {
 
     private final long id;
-    private static long nextId = 0;
+    private static long nextId = 1;
     private final String hostName;
     private int size;
     private int position;

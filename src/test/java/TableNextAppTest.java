@@ -195,7 +195,7 @@ public class TableNextAppTest extends student.TestCase
      */
     public void testHandleHostChoiceAddPartyWithReservation()
     {
-        startApp(multiline("Lee", "2", "y", "y", "2026-10-20 18:30"));
+        startApp(multiline("Lee", "2", "y", "y", "2099-10-20 18:30"));
         app.handleHostChoice(1);
 
         assertTrue(shown().contains("Lee was seated immediately"));
@@ -208,7 +208,7 @@ public class TableNextAppTest extends student.TestCase
     public void testHandleHostChoiceAddPartyBadDate()
     {
         startApp(multiline("Lee", "2", "n", "y", "tomorrow",
-            "2026-10-20 18:30"));
+            "2099-10-20 18:30"));
         app.handleHostChoice(1);
 
         String text = shown();
@@ -582,5 +582,39 @@ public class TableNextAppTest extends student.TestCase
 
         assertTrue(app.readYesNo("Sure? "));
         assertTrue(shown().contains("Enter y or n"));
+    }
+
+    /**
+     * A reservation time in the past is asked for again.
+     */
+    public void testHandleHostChoiceAddPartyPastDate()
+    {
+        startApp(multiline("Lee", "2", "n", "y", "2000-01-01 10:00",
+            "2099-10-20 18:30"));
+        app.handleHostChoice(1);
+
+        assertTrue(shown().contains("Reservation time cannot be in the past"));
+    }
+
+    /**
+     * Option 10 adds a custom table.
+     */
+    public void testHandleHostChoiceAddCustomTable()
+    {
+        startApp(multiline("1", "8", "2"));
+        app.handleHostChoice(10);
+
+        assertTrue(shown().contains("Table added"));
+    }
+
+    /**
+     * Loading a preset puts parties on the waitlist.
+     */
+    public void testHandleHostChoiceBusyNightPreset()
+    {
+        startApp(multiline("2"));
+        app.handleHostChoice(10);
+
+        assertTrue(shown().contains("Busy Night loaded"));
     }
 }

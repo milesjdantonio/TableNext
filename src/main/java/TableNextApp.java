@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /** Runs the console menus for hosts, servers, and customers. */
@@ -24,6 +25,15 @@ public class TableNextApp {
 
     /** Keeps asking for a role and then shows that role's menu. */
     public void run() {
+        try {
+            runMenus();
+        }
+        catch (NoSuchElementException exception) {
+            Display.printMessage("Input closed. Goodbye!");
+        }
+    }
+
+    private void runMenus() {
         while (true) {
             UserType user = selectUserType();
             if (user == null) {
@@ -75,7 +85,7 @@ public class TableNextApp {
                     if (party == null) {
                         Display.printError("No table can seat a party that size");
                     }
-                    else if (party.getPosition() == 0) {
+                    else if (!isWaiting(party)) {
                         Display.printMessage(party.getHostName() + " was seated immediately");
                     }
                     else {
@@ -96,6 +106,10 @@ public class TableNextApp {
                 }
             }
             case 3 ->                 {
+                    if (restaurant.getWaitlist().isEmpty()) {
+                        Display.printError("The waitlist is empty");
+                        return;
+                    }
                     Party party = restaurant.getWaitlist().removeAt(
                             readInt("Position to remove: ", 1, Math.max(1,
                                     restaurant.getWaitlist().getCount())));
@@ -120,15 +134,108 @@ public class TableNextApp {
             case 8 -> {
                 if (restaurant.clearTable(readTableNumber())) {
                     Display.printMessage("Table cleared");
+                    int waiting = restaurant.getWaitlist().getCount();
+                    if (waiting > 0) {
+                        Display.printMessage(waiting + (waiting == 1 ? " party is" : " parties are")
+                            + " waiting; use option 7 to seat the next one");
+                    }
                 }
                 else {
                     Display.printError("That table is already open or does not exist");
                 }
             }
             case 9 -> Display.printTables(restaurant.getTables());
+            case 10 -> handleAddTable();
             default -> {
             }
         }
+    }
+
+    /** Adds one custom table or loads a demonstration preset. */
+    public void handleAddTable() {
+        Display.printAddTableMenu();
+        switch (readInt("Choose an option: ", 0, 5)) {
+            case 1 -> {
+                int size = readEvenInt("Table size (even number): ", 2, MAX_PARTY_SIZE);
+                int accessible = readInt("Accessible seats: ", 0, size);
+                if (restaurant.addTable(size, accessible)) {
+                    Display.printMessage("Table added");
+                }
+                else {
+                    Display.printError("Could not add that table");
+                }
+            }
+            case 2 -> loadBusyNightPreset();
+            case 3 -> loadSmallestFitPreset();
+            case 4 -> loadAccessibilityPreset();
+            case 5 -> loadReservationsPreset();
+            default -> {
+            }
+        }
+    }
+
+    /** Reads an even whole number in the requested inclusive range. */
+    private int readEvenInt(String prompt, int min, int max) {
+        while (true) {
+            int value = readInt(prompt, min, max);
+            if (value % 2 == 0) {
+                return value;
+            }
+            Display.printError("Enter an even number");
+        }
+    }
+
+    /** Adds tables, fills every one, and leaves four parties waiting. */
+    private void loadBusyNightPreset() {
+        restaurant.addTable(4, 0);
+        restaurant.addTable(6, 2);
+        restaurant.addTable(8, 2);
+        int[] sizes = {2, 4, 4, 6, 6, 8, 3, 5, 2, 4};
+        String[] names = {"Adams", "Baker", "Chen", "Diaz", "Evans",
+            "Foster", "Garcia", "Hill", "Ito", "Jones"};
+        for (int i = 0; i < sizes.length; i++) {
+            restaurant.addParty(names[i], sizes[i], false, null);
+        }
+        Display.printMessage("Busy Night loaded: tables are full and parties are waiting");
+    }
+
+    /** Shows small parties taking the smallest open table that fits. */
+    private void loadSmallestFitPreset() {
+        restaurant.addTable(8, 0);
+        restaurant.addParty("Kim", 3, false, null);
+        restaurant.addParty("Lopez", 5, false, null);
+        restaurant.addParty("Moore", 2, false, null);
+        restaurant.addParty("Nguyen", 7, false, null);
+        restaurant.addParty("Ortiz", 2, false, null);
+        restaurant.addParty("Patel", 4, false, null);
+        Display.printMessage("Smallest Fit loaded: 3 took the 4-top, 5 took the 6-top, 2 took the 2-top");
+    }
+
+    /** Seats parties that need accessible seating, with more waiting. */
+    private void loadAccessibilityPreset() {
+        restaurant.addTable(4, 4);
+        restaurant.addTable(6, 3);
+        restaurant.addParty("Quinn", 3, true, null);
+        restaurant.addParty("Reed", 4, true, null);
+        restaurant.addParty("Singh", 5, true, null);
+        restaurant.addParty("Turner", 6, false, null);
+        restaurant.addParty("Usman", 2, true, null);
+        restaurant.addParty("Vega", 4, true, null);
+        restaurant.addParty("Wu", 3, false, null);
+        Display.printMessage("Accessibility loaded: view tables for accessible seats in use");
+    }
+
+    /** Fills the starting tables, then queues parties with reservation times. */
+    private void loadReservationsPreset() {
+        restaurant.addParty("Young", 2, false, null);
+        restaurant.addParty("Zhang", 4, false, null);
+        restaurant.addParty("Allen", 6, false, null);
+        restaurant.addParty("Brooks", 2, false, null);
+        LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
+        restaurant.addParty("Cole", 4, false, now.plusMinutes(30));
+        restaurant.addParty("Dunn", 6, true, now.plusHours(1));
+        restaurant.insertPartyAt("Ellis", 2, false, now.plusMinutes(15), 1);
+        Display.printMessage("Reservations loaded: Ellis was inserted at the front of the waitlist");
     }
 
     /** Performs a server action chosen from the Server menu. */
@@ -139,7 +246,7 @@ public class TableNextApp {
                 int tableNumber = readTableNumber();
                 MenuItem[] menu = restaurant.getMenu();
                 Display.printFoodMenu(menu);
-                int menuChoice = readInt("Choose a menu item: ", 1, menu.length);
+                int menuChoice = readMenuChoice(menu);
                 boolean changed;
                 if (choice == 2) {
                     changed = restaurant.addItemToTable(tableNumber, menu[menuChoice - 1]);
@@ -191,6 +298,28 @@ public class TableNextApp {
         }
     }
 
+    /** Reads a menu item by its number or its name, ignoring case. */
+    private int readMenuChoice(MenuItem[] menu) {
+        while (true) {
+            System.out.print("Choose a menu item (number or name): ");
+            String text = input.nextLine().trim();
+            try {
+                int value = Integer.parseInt(text);
+                if (value >= 1 && value <= menu.length) {
+                    return value;
+                }
+            }
+            catch (NumberFormatException exception) {
+                for (int i = 0; i < menu.length; i++) {
+                    if (menu[i].getName().equalsIgnoreCase(text)) {
+                        return i + 1;
+                    }
+                }
+            }
+            Display.printError("Enter a menu number from 1 to " + menu.length + " or an item name");
+        }
+    }
+
     /** Reads a non-blank name. */
     public String readName(String prompt) {
         while (true) {
@@ -236,7 +365,12 @@ public class TableNextApp {
         while (true) {
             System.out.print("Reservation time (yyyy-MM-dd HH:mm): ");
             try {
-                return LocalDateTime.parse(input.nextLine().trim(), RESERVATION_FORMAT);
+                LocalDateTime time = LocalDateTime.parse(input.nextLine().trim(), RESERVATION_FORMAT);
+                if (time.isBefore(LocalDateTime.now())) {
+                    Display.printError("Reservation time cannot be in the past");
+                    continue;
+                }
+                return time;
             }
             catch (DateTimeParseException exception) {
                 Display.printError("Use the format yyyy-MM-dd HH:mm");
@@ -244,14 +378,34 @@ public class TableNextApp {
         }
     }
 
+    /** Reads a table number between the smallest and largest existing numbers. */
     private int readTableNumber() {
-        int largestNumber = restaurant.getTables().length;
-        return readInt("Table number: ", 1, Math.max(1, largestNumber));
+        int smallest = Integer.MAX_VALUE;
+        int largest = 0;
+        for (Table table : restaurant.getTables()) {
+            smallest = Math.min(smallest, table.getTableNumber());
+            largest = Math.max(largest, table.getTableNumber());
+        }
+        if (largest == 0) {
+            smallest = 1;
+            largest = 1;
+        }
+        return readInt("Table number: ", smallest, largest);
+    }
+
+    /** Checks whether a party is on the waitlist rather than seated. */
+    private boolean isWaiting(Party party) {
+        for (Party waiting : restaurant.getWaitlist().getInOrder()) {
+            if (waiting.equals(party)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int getMaximumChoice(UserType user) {
         if (user == UserType.HOST) {
-            return 9;
+            return 10;
         }
         if (user == UserType.SERVER) {
             return 4;

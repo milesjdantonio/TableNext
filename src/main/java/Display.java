@@ -38,8 +38,8 @@ public class Display {
         if (name.length() > width) {
             name = "ID: " + id;
         }
-        int left = (width - name.length()) / 2;
-        int right = width - name.length() - left;
+        int left = Math.max(0, (width - name.length()) / 2);
+        int right = Math.max(0, width - name.length() - left);
 
         return " ".repeat(left) + COLOR_YELLOW + name + getTableColor(table) + " ".repeat(right);
     }
@@ -112,6 +112,16 @@ public class Display {
         System.out.println("  0. Quit");
     }
 
+    public static void printAddTableMenu() {
+        System.out.println("\nAdd Table");
+        System.out.println("  1. Custom Table");
+        System.out.println("  2. Preset 1: Busy Night (all tables full, long waitlist)");
+        System.out.println("  3. Preset 2: Smallest Fit (small parties skip big tables)");
+        System.out.println("  4. Preset 3: Accessibility (accessible seats in use)");
+        System.out.println("  5. Preset 4: Reservations (waitlist with reservation times)");
+        System.out.println("  0. Back");
+    }
+
     public static void printMenu(UserType user) {
         if (user == null) {
             return;
@@ -129,6 +139,7 @@ public class Display {
                 System.out.println("  7. Seat Next Party at Table");
                 System.out.println("  8. Clear Table");
                 System.out.println("  9. View Tables");
+                System.out.println("  10. Add Table");
             }
             case SERVER -> {
                 System.out.println("\nServer Menu");
@@ -161,7 +172,7 @@ public class Display {
             System.out.println(String.format("  %-4s %-4s %-15s %-5s %-11s %s",
                 "Pos", "ID", "Name", "Size", "Accessible", "Reservation"));
             for (Party party : parties) {
-                System.out.println(String.format("  %-4d %-4d %-15s %-5d %-11s %s",
+                System.out.println(String.format("  %-4d %-4d %-15.15s %-5d %-11s %s",
                     party.getPosition(), party.getId(), party.getHostName(), party.getSize(),
                     party.needAccessibility() ? "Yes" : "No", formatReservation(party)));
             }
@@ -196,7 +207,7 @@ public class Display {
         if (!party.hasReservation()) {
             return "None";
         }
-        return party.getReservationTime().format(DateTimeFormatter.ofPattern("h:mm a"));
+        return party.getReservationTime().format(DateTimeFormatter.ofPattern("MMM d, h:mm a"));
     }
 
     /*

@@ -43,12 +43,12 @@ public class Restaurant {
      */
     public Party addParty(String hostName, int size, boolean needAccessibility,
         LocalDateTime reservationTime) {
-        if (!canEverSeat(size)) {
+        if (!canEverSeat(size, needAccessibility)) {
             return null;
         }
 
         Party party = new Party(hostName, size, needAccessibility, reservationTime);
-        Table openTable = findOpenTable(size);
+        Table openTable = findOpenTable(size, needAccessibility);
         if (openTable != null) {
             openTable.seat(party);
         }
@@ -61,7 +61,7 @@ public class Restaurant {
     /** Adds a reservation to a chosen waitlist position. */
     public boolean insertPartyAt(String hostName, int size,
         boolean needAccessibility, LocalDateTime reservationTime, int position) {
-        if (!canEverSeat(size)) {
+        if (!canEverSeat(size, needAccessibility)) {
             return false;
         }
         Party party = new Party(hostName, size, needAccessibility, reservationTime);
@@ -70,9 +70,20 @@ public class Restaurant {
 
     /** Returns the smallest open table that can seat a party of this size. */
     public Table findOpenTable(int partySize) {
+        return findOpenTable(partySize, false);
+    }
+
+    /**
+     * Returns the smallest open table that fits the party; a party that
+     * needs accessibility only matches tables with accessible seats.
+     */
+    public Table findOpenTable(int partySize, boolean needAccessibility) {
         Table bestTable = null;
         for (int index = 0; index < tables.size(); index++) {
             Table table = tables.get(index);
+            if (needAccessibility && table.getHandicapSeats() == 0) {
+                continue;
+            }
             if (table.isOpen() && table.getSize() >= partySize
                 && (bestTable == null || table.getSize() < bestTable.getSize())) {
                 bestTable = table;
@@ -99,7 +110,8 @@ public class Restaurant {
             return false;
         }
 
-        Party party = waitlist.removeFirstThatFits(table.getSize());
+        Party party = waitlist.removeFirstThatFits(table.getSize(),
+            table.getHandicapSeats());
         return party != null && table.seat(party);
     }
 
@@ -135,13 +147,15 @@ public class Restaurant {
         return menu.toArray(new MenuItem[menu.size()]);
     }
 
-    /** Checks whether any existing table could seat a party of this size. */
-    private boolean canEverSeat(int partySize) {
+    /** Checks whether any existing table could ever seat this party. */
+    private boolean canEverSeat(int partySize, boolean needAccessibility) {
         if (partySize <= 0) {
             return false;
         }
         for (int index = 0; index < tables.size(); index++) {
-            if (tables.get(index).getSize() >= partySize) {
+            Table table = tables.get(index);
+            if (table.getSize() >= partySize
+                && (!needAccessibility || table.getHandicapSeats() > 0)) {
                 return true;
             }
         }

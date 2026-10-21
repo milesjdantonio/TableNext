@@ -1,10 +1,24 @@
 # TableNext
 
-TableNext is a console-based restaurant waitlist and table-management program. Hosts can manage parties and tables, servers can manage orders, and customers can view the public waitlist.
+TableNext is a console-based restaurant waitlist and table-management program. Hosts manage parties and tables, servers manage food orders, and customers view the public waitlist.
 
-## Running the Program
+## Features
 
-From the `TableNext-main` folder, compile and run:
+- **Host:** add, insert, and remove parties on the waitlist; view the next party and the waitlist count; seat and clear tables; view a color-coded table map; add tables.
+- **Server:** view tables and add, remove, or view a seated party's order.
+- **Customer:** view the waitlist (position and party size only) and the number of parties waiting.
+- **Smart seating:** a new party is seated immediately at the smallest open table that fits, otherwise it joins the waitlist. Parties that need accessibility are only seated at tables with accessible seats.
+- **Reservations:** parties can carry an optional reservation time.
+- **Demo presets:** the Host's "Add Table" option can add a custom table or load a preset scenario (see below).
+
+## Requirements
+
+- Java 17 or newer
+- A terminal that supports ANSI colors (for the table map)
+
+## Build and Run
+
+From the project root:
 
 ```bash
 mkdir -p out
@@ -12,103 +26,58 @@ javac -d out src/main/java/*.java
 java -cp out TableNextApp
 ```
 
-Enter `1` for Host, `2` for Server, `3` for Customer, or `0` to quit.
+On startup, choose a role: `1` Host, `2` Server, `3` Customer, or `0` to quit.
 
-For a reservation time, use this format:
+## Usage
 
-```text
-yyyy-MM-dd HH:mm
-```
+Reservation times use the format `yyyy-MM-dd HH:mm`, for example `2026-10-14 18:30`.
 
-Example:
+Server menus accept a food item by number or by name (for example `1` or `Burger`).
 
-```text
-2026-10-14 18:30
-```
+### Host: Add Table and Presets
 
-## Running Tests
-There are 7 test classes and 192 tests. 
+Host option `10` adds a table or loads a demonstration scenario on top of the starting tables:
 
-| Test class | Tests | What it covers |
-| --- | --- | --- |
-| `MenuItemTest` | 19 | Name and price validation, equals ignoring case, formatting |
-| `PartyTest` | 28 | Party details, moving a reservation, waitlist position, order items |
-| `TableTest` | 27 | Size and accessible-seat rules, which seats fill first, seating and clearing |
-| `WaitlistTest` | 17 | Add, insert, and remove by position, and renumbering after every change |
-| `RestaurantTest` | 29 | Smallest-table seating, waitlist overflow, seating the first party that fits |
-| `DisplayTest` | 35 | What each menu and message prints, and the empty-state wording |
-| `TableNextAppTest` | 37 | The typed-input loops, each role's menu, and re-asking on bad input |
-
-Every public method of the app classes has at least one normal case and one bad-input case. 
-
-## Reflection
-
-### What changed from the specification?
-
-The original specification described an `Output` class and a simpler waitlist. The implemented program uses the renamed `Display` class, which contains static methods for console output and table drawings.
-
-`Party` now assigns its own ID and stores a host name, party size, accessibility need, and optional `LocalDateTime` reservation time. `Table` assigns its own table number and supports accessible seats. A `Restaurant` class was added to coordinate the waitlist, tables, food menu, seating, and orders.
-
-`TableNextApp` owns the console menu and input validation. It checks menu choices, names, numbers, yes/no answers, and reservation-time input before calling the model classes.
-
-Because the provided `LinkedChain` does not have an insert-at-index method, `Waitlist.insertAt` rebuilds the chain using the public API and then updates each party’s position. Removing a party also updates later positions.
-
-### What changed in the LinkedChain?
-
-`LinkedChain` was used unchanged. The application reuses the same generic class for different element types:
-
-- `LinkedChain<Party>` for the waitlist
-- `LinkedChain<Table>` for restaurant tables
-- `LinkedChain<MenuItem>` for the food menu and party orders
-
-The application uses only public `LinkedChain` methods such as `addToEnd`, `remove`, `contains`, `get`, `size`, and `toArray`.
-
-### What happened to the unknowns?
-
-The team resolved how to keep waitlist positions correct, insert or remove parties by position, and reuse one generic linked chain for unrelated types. The remaining work is mainly completing and reviewing the JUnit tests, checking bad-input cases, and preparing for the grading demonstration.
-
-### What does not work yet?
-
-The core console prototype works. Estimated wait times, text notifications, and a generalized HokieWait version are not included in this prototype.
-
-## Next Steps
-
-1. Review the program’s input validation and fix any issues found by the tests.
-2. Verify the full MVP path: add, insert, remove, view, count, seat, clear, and order items.
-3. Add a "add table" option to host, with presets primarly for demonstration.
-4. Add Tests to any feature we add
-5. Prepare the final demonstration and make sure every team member can explain their code.
-
-The team is keeping table-capacity seating and food orders as implemented extensions. Estimated wait times, text notifications, and the HokieWait generalization will not be included in this version.
-
-## Attribution
-
-| File | Contributors and role |
+| Option | Scenario |
 | --- | --- |
-| `LinkedChain.java` | CS 2114 staff — provided starter implementation; used unchanged. |
-| `Waitlist.java` | Alex Chen — implemented waitlist behavior and position updates; GenAI-assisted development, reviewed before use. |
-| `Restaurant.java` | Alex Chen — implemented restaurant coordination, seating, menu, and order methods; GenAI-assisted development, reviewed before use. |
-| `TableNextApp.java` | Alex Chen — implemented console menus and input validation; GenAI-assisted development, reviewed before use. |
-| `Table.java` | Team — original table and accessibility design; Alex Chen added `fits`, `equals`, `hashCode`, and `toString`. |
-| `Party.java` | Miles D'Antonio — wrote party design and implementation; GenAI-reviewed. |
-| `MenuItem.java` | Miles D'Antonio — wrote menu-item design and implementation; GenAI-reviewed. |
-| `Display.java` | Miles D'Antonio — wrote console-display implementation; GenAI-reviewed. |
-| `UserType.java` | Team — defined user roles. |
-| `MenuItemTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
-| `PartyTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
-| `TableTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
-| `WaitlistTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
-| `RestaurantTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
-| `DisplayTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
-| `TableNextAppTest.java` | Ethan Kahl — wrote and ran the tests; GenAI-assisted, reviewed before use. |
+| Custom Table | Add one table with a chosen size (even number) and number of accessible seats |
+| Busy Night | Every table is full and several parties are waiting |
+| Smallest Fit | Small parties take the smallest open table instead of larger ones |
+| Accessibility | Accessible seats are in use and accessible parties wait for a suitable table |
+| Reservations | Tables are full and the waitlist has reservation times, with one party inserted at the front |
 
-## GenAI Note
-We used claude to help while building this. For the application classes, GenAI helped revise code, 
-and the team member listed in the attribution table reviewed each file before it went in.
-For the test files, Ethan worked with claude and claude code to check that the tests were catching real bugs.
-It broke things on purpose in different ways and confirmed that tests failed every time. 
-Also, for all the test classes claude assisted Ethan with writing all of the java docs and comments
-so that all of the groupmates clearly understood what was happening in that part of the code
-with a clear explanation from claude. This was looked over and reviewed before submitting. 
-I also used it in this README file just to make what I wanted to put under running tests into a table
-for better readability. 
+Presets add to the current state, so load them on a fresh start for predictable results.
+
+## Project Structure
+
+| File | Purpose |
+| --- | --- |
+| `TableNextApp.java` | Console menus and input validation |
+| `Restaurant.java` | Coordinates the waitlist, tables, menu, seating, and orders |
+| `Waitlist.java` | Ordered waitlist with position tracking |
+| `Table.java` | A table, its accessible seats, and the party seated there |
+| `Party.java` | A party's details, reservation, and order |
+| `MenuItem.java` | A food item with a name and price |
+| `Display.java` | Console output, menus, and table drawings |
+| `UserType.java` | Host, Server, and Customer roles |
+| `LinkedChain.java` | Generic linked list used for the waitlist, tables, menu, and orders |
+
+## Testing
+
+Tests live in `src/test/java` and extend the CS 2114 `student.TestCase` (JUnit). Each class has a matching test class: `MenuItemTest`, `PartyTest`, `TableTest`, `WaitlistTest`, `RestaurantTest`, `DisplayTest`, and `TableNextAppTest`.
+
+## Known Limitations
+
+- Data is held in memory only and is lost when the program exits.
+- Estimated wait times and text notifications are not implemented.
+- Seating a party from the waitlist (Host option 7) does not yet check accessibility needs.
+
+## Credits
+
+- `LinkedChain.java` was provided by CS 2114 staff and is used unchanged.
+- Alex Chen: `Waitlist`, `Restaurant`, `TableNextApp`, and additions to `Table`.
+- Miles D'Antonio: `Party`, `MenuItem`, `Display`.
+- Ethan Kahl: all test classes.
+- The team defined `UserType` and the original `Table` design.
+
+Parts of the code, tests, and documentation were developed with help from Claude (GenAI). Each file was reviewed by its listed contributor before use.

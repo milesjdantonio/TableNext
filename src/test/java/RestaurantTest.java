@@ -469,4 +469,46 @@ public class RestaurantTest extends student.TestCase
 
         assertNotNull(cafe.getMenu()[0]);
     }
+
+    /**
+     * A party that needs accessibility skips the table with no accessible
+     * seats, even when that table is the smallest one that fits.
+     */
+    public void testAddPartyAccessibleSkipsPlainTable()
+    {
+        Party party = cafe.addParty("Kim", 2, true, null);
+
+        assertEquals(4, cafe.findTable(2).getSize());
+        assertSame(party, cafe.findTable(2).getSeatedParty());
+        assertTrue(cafe.findTable(1).isOpen());
+    }
+
+    /**
+     * An accessible party is turned away when no table has accessible
+     * seats, and waits when the accessible tables are full.
+     */
+    public void testAddPartyAccessibleBadInput()
+    {
+        Restaurant plain = new Restaurant();
+        plain.addTable(4, 0);
+
+        assertNull(plain.addParty("Kim", 2, true, null));
+        assertFalse(plain.insertPartyAt("Kim", 2, true, null, 1));
+    }
+
+    /**
+     * seatNext does not seat an accessible party at a table with no
+     * accessible seats.
+     */
+    public void testSeatNextSkipsAccessibleParty()
+    {
+        cafe.addParty("A", 4, false, null);
+        cafe.addParty("B", 6, false, null);
+        cafe.addParty("C", 2, false, null);
+        cafe.addParty("D", 2, true, null);
+        cafe.clearTable(1);
+
+        assertFalse(cafe.seatNext(1));
+        assertEquals(1, cafe.getWaitlist().getCount());
+    }
 }

@@ -69,6 +69,9 @@ public class Table {
         if (size < this.handicapSeats) {
             throw new IllegalArgumentException("Table size cannot be smaller than its handicap seats");
         }
+        if (this.seatedParty != null && size < this.seatedParty.getSize()) {
+            throw new IllegalArgumentException("Table size cannot be smaller than the seated party");
+        }
         this.size = size;
     }
 

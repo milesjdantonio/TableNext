@@ -65,9 +65,18 @@ public class Waitlist {
 
     /** Removes the earliest party whose size fits the table capacity. */
     public Party removeFirstThatFits(int capacity) {
+        return removeFirstThatFits(capacity, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Removes the earliest party that fits the capacity; a party that needs
+     * accessibility only matches a table with accessible seats.
+     */
+    public Party removeFirstThatFits(int capacity, int handicapSeats) {
         for (int index = 0; index < line.size(); index++) {
             Party party = line.get(index);
-            if (party.getSize() <= capacity) {
+            if (party.getSize() <= capacity
+                && (!party.needAccessibility() || handicapSeats > 0)) {
                 line.remove(party);
                 updatePositions();
                 return party;
