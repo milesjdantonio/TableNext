@@ -64,6 +64,7 @@ public class RestaurantTest extends student.TestCase
                 highest = tables[index].getTableNumber();
             }
         }
+
         return highest + 1;
     }
 
@@ -170,7 +171,9 @@ public class RestaurantTest extends student.TestCase
      */
     public void testAddPartyWithReservation()
     {
-        LocalDateTime sevenPm = LocalDateTime.of(2026, 10, 20, 19, 0);
+        LocalDateTime sevenPm =
+            LocalDateTime.of(2026, 10, 20, 19, 0);
+
         Party lee = cafe.addParty("Lee", 2, true, sevenPm);
 
         assertTrue(lee.hasReservation());
@@ -291,7 +294,8 @@ public class RestaurantTest extends student.TestCase
         assertTrue(cafe.seatNext(numberOf(0)));
         assertTrue(cafe.getWaitlist().isEmpty());
         assertEquals("Waiting",
-            cafe.findTable(numberOf(0)).getSeatedParty().getHostName());
+            cafe.findTable(numberOf(0))
+                .getSeatedParty().getHostName());
     }
 
     /**
@@ -305,7 +309,8 @@ public class RestaurantTest extends student.TestCase
 
         assertTrue(cafe.seatNext(numberOf(0)));
         assertEquals("Small",
-            cafe.findTable(numberOf(0)).getSeatedParty().getHostName());
+            cafe.findTable(numberOf(0))
+                .getSeatedParty().getHostName());
         assertEquals(1, cafe.getWaitlist().getCount());
     }
 
@@ -478,14 +483,15 @@ public class RestaurantTest extends student.TestCase
     {
         Party party = cafe.addParty("Kim", 2, true, null);
 
-        assertEquals(4, cafe.findTable(2).getSize());
-        assertSame(party, cafe.findTable(2).getSeatedParty());
-        assertTrue(cafe.findTable(1).isOpen());
+        assertEquals(4, cafe.findTable(numberOf(1)).getSize());
+        assertSame(party,
+            cafe.findTable(numberOf(1)).getSeatedParty());
+        assertTrue(cafe.findTable(numberOf(0)).isOpen());
     }
 
     /**
      * An accessible party is turned away when no table has accessible
-     * seats, and waits when the accessible tables are full.
+     * seats.
      */
     public void testAddPartyAccessibleBadInput()
     {
@@ -498,17 +504,59 @@ public class RestaurantTest extends student.TestCase
 
     /**
      * seatNext does not seat an accessible party at a table with no
-     * accessible seats.
+     * accessible seats. The party stays on the waitlist and can be
+     * seated once a suitable accessible table is cleared.
      */
     public void testSeatNextSkipsAccessibleParty()
     {
         cafe.addParty("A", 4, false, null);
         cafe.addParty("B", 6, false, null);
         cafe.addParty("C", 2, false, null);
-        cafe.addParty("D", 2, true, null);
-        cafe.clearTable(1);
 
-        assertFalse(cafe.seatNext(1));
+        Party waiting = cafe.addParty("D", 2, true, null);
+
+        assertNotNull(waiting);
         assertEquals(1, cafe.getWaitlist().getCount());
+
+        // Confirm that the plain table exists and is successfully cleared.
+        // Otherwise a missing table could make seatNext return false
+        // without actually checking accessibility.
+        assertTrue(cafe.clearTable(numberOf(0)));
+        assertTrue(cafe.findTable(numberOf(0)).isOpen());
+
+        assertFalse(cafe.seatNext(numberOf(0)));
+        assertEquals(1, cafe.getWaitlist().getCount());
+        assertSame(waiting, cafe.getWaitlist().peekNext());
+
+        // The same waiting party can use a table with accessible seats.
+        assertTrue(cafe.clearTable(numberOf(1)));
+        assertTrue(cafe.seatNext(numberOf(1)));
+        assertSame(waiting,
+            cafe.findTable(numberOf(1)).getSeatedParty());
+        assertTrue(cafe.getWaitlist().isEmpty());
+    }
+
+    /**
+     * A plain table skips an accessible party and seats the next fitting
+     * party that does not need accessibility. The skipped party remains
+     * first in line and its position is still correct.
+     */
+    public void testSeatNextSkipsAccessibleAndSeatsPlainParty()
+    {
+        cafe.addParty("A", 4, false, null);
+        cafe.addParty("B", 6, false, null);
+        cafe.addParty("C", 2, false, null);
+
+        Party accessible = cafe.addParty("D", 2, true, null);
+        Party plain = cafe.addParty("E", 2, false, null);
+
+        assertEquals(2, cafe.getWaitlist().getCount());
+        assertTrue(cafe.clearTable(numberOf(0)));
+        assertTrue(cafe.seatNext(numberOf(0)));
+
+        assertSame(plain,
+            cafe.findTable(numberOf(0)).getSeatedParty());
+        assertSame(accessible, cafe.getWaitlist().peekNext());
+        assertEquals(1, accessible.getPosition());
     }
 }
