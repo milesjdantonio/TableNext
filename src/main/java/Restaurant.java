@@ -78,6 +78,10 @@ public class Restaurant {
      * needs accessibility only matches tables with accessible seats.
      */
     public Table findOpenTable(int partySize, boolean needAccessibility) {
+        // A valid party must contain at least one person.
+        if (partySize <= 0) {
+            return null;
+        }
         Table bestTable = null;
         for (int index = 0; index < tables.size(); index++) {
             Table table = tables.get(index);
