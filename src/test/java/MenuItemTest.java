@@ -275,4 +275,63 @@ public class MenuItemTest extends student.TestCase
 
         assertEquals("Water $0.00", water.toString());
     }
+
+    /** Non-finite prices must be rejected by both construction and updates. */
+    public void testNonFinitePrices() {
+        double[] invalid = {
+            Double.NaN,
+            Double.POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY
+        };
+
+        for (double price : invalid) {
+            try {
+                new MenuItem("Invalid", price);
+                fail("Constructor accepted a non-finite price");
+            }
+            catch (IllegalArgumentException expected) {
+                // Expected: invalid prices must be rejected.
+            }
+
+            try {
+                burger.setPrice(price);
+                fail("Setter accepted a non-finite price");
+            }
+            catch (IllegalArgumentException expected) {
+                // The previous valid price must remain unchanged.
+            }
+
+            assertEquals(12.0, burger.getPrice(), CENT);
+        }
+    }
+
+    /** Equal items must have equal hashes across zero and case variants. */
+    public void testHashCodeForEqualValues() {
+        MenuItem positive = new MenuItem("Soda", 0.0);
+        MenuItem negative = new MenuItem("soda", -0.0);
+
+        assertEquals(positive, negative);
+        assertEquals(positive.hashCode(), negative.hashCode());
+
+        java.util.Locale original = java.util.Locale.getDefault();
+
+        try {
+            java.util.Locale.setDefault(
+                java.util.Locale.forLanguageTag("tr-TR"));
+
+            MenuItem upper = new MenuItem("FRIES", 4.0);
+            MenuItem lower = new MenuItem("fries", 4.0);
+            MenuItem dotted = new MenuItem("FR\u0130ES", 4.0);
+
+            assertEquals(upper, lower);
+            assertEquals(upper.hashCode(), lower.hashCode());
+
+            assertEquals(upper, dotted);
+            assertEquals(upper.hashCode(), dotted.hashCode());
+        }
+        finally {
+            // Restore the locale so other tests are not affected.
+            java.util.Locale.setDefault(original);
+        }
+    }
 }
