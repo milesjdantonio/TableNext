@@ -7,6 +7,7 @@ public class Display {
     private static final String COLOR_GREEN = "\u001B[32m";
     private static final String COLOR_BLUE = "\u001B[34m";
     private static final String COLOR_PURPLE = "\u001B[35m";
+    private static final int ESTIMATED_MINUTES_PER_PARTY = 15;
 
     /* 
         TABLE GENERATION SECTION
@@ -112,16 +113,6 @@ public class Display {
         System.out.println("  0. Quit");
     }
 
-    public static void printAddTableMenu() {
-        System.out.println("\nAdd Table");
-        System.out.println("  1. Custom Table");
-        System.out.println("  2. Preset 1: Busy Night (all tables full, long waitlist)");
-        System.out.println("  3. Preset 2: Smallest Fit (small parties skip big tables)");
-        System.out.println("  4. Preset 3: Accessibility (accessible seats in use)");
-        System.out.println("  5. Preset 4: Reservations (waitlist with reservation times)");
-        System.out.println("  0. Back");
-    }
-
     public static void printMenu(UserType user) {
         if (user == null) {
             return;
@@ -139,7 +130,10 @@ public class Display {
                 System.out.println("  7. Seat Next Party at Table");
                 System.out.println("  8. Clear Table");
                 System.out.println("  9. View Tables");
-                System.out.println("  10. Add Table");
+                System.out.println("  10. Add Custom Table");
+                System.out.println("  11. Preset 1");
+                System.out.println("  12. Preset 2");
+                System.out.println("  13. Preset 3");
             }
             case SERVER -> {
                 System.out.println("\nServer Menu");
@@ -169,19 +163,26 @@ public class Display {
 
         System.out.println("\nWaitlist");
         if (user == UserType.HOST) {
-            System.out.println(String.format("  %-4s %-4s %-15s %-5s %-11s %s",
-                "Pos", "ID", "Name", "Size", "Accessible", "Reservation"));
+            System.out.println(String.format("  %-4s %-4s %-15s %-5s %-11s %-11s %s",
+                "Pos", "ID", "Name", "Size", "Accessible", "Est. Wait", "Reservation"));
             for (Party party : parties) {
-                System.out.println(String.format("  %-4d %-4d %-15.15s %-5d %-11s %s",
+                System.out.println(String.format("  %-4d %-4d %-15.15s %-5d %-11s %-11s %s",
                     party.getPosition(), party.getId(), party.getHostName(), party.getSize(),
-                    party.needAccessibility() ? "Yes" : "No", formatReservation(party)));
+                    party.needAccessibility() ? "Yes" : "No", formatEstimatedWait(party),
+                    formatReservation(party)));
             }
         } else {
-            System.out.println(String.format("  %-4s %s", "Pos", "Size"));
+            System.out.println(String.format("  %-4s %-5s %s", "Pos", "Size", "Est. Wait"));
             for (Party party : parties) {
-                System.out.println(String.format("  %-4d %d", party.getPosition(), party.getSize()));
+                System.out.println(String.format("  %-4d %-5d %s",
+                    party.getPosition(), party.getSize(), formatEstimatedWait(party)));
             }
         }
+    }
+
+    /** Estimates a party's remaining wait from its position in line. */
+    private static String formatEstimatedWait(Party party) {
+        return (party.getPosition() * ESTIMATED_MINUTES_PER_PARTY) + " min";
     }
 
     public static void printNext(Party party) {

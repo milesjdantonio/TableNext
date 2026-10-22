@@ -148,31 +148,23 @@ public class TableNextApp {
             }
             case 9 -> Display.printTables(restaurant.getTables());
             case 10 -> handleAddTable();
+            case 11 -> loadPreset1();
+            case 12 -> loadPreset2();
+            case 13 -> loadPreset3();
             default -> {
             }
         }
     }
 
-    /** Adds one custom table or loads a demonstration preset. */
+    /** Adds one custom table from the host's input. */
     public void handleAddTable() {
-        Display.printAddTableMenu();
-        switch (readInt("Choose an option: ", 0, 5)) {
-            case 1 -> {
-                int size = readEvenInt("Table size (even number): ", 2, MAX_PARTY_SIZE);
-                int accessible = readInt("Accessible seats: ", 0, size);
-                if (restaurant.addTable(size, accessible)) {
-                    Display.printMessage("Table added");
-                }
-                else {
-                    Display.printError("Could not add that table");
-                }
-            }
-            case 2 -> loadBusyNightPreset();
-            case 3 -> loadSmallestFitPreset();
-            case 4 -> loadAccessibilityPreset();
-            case 5 -> loadReservationsPreset();
-            default -> {
-            }
+        int size = readEvenInt("Table size (even number): ", 2, MAX_PARTY_SIZE);
+        int accessible = readInt("Accessible seats: ", 0, size);
+        if (restaurant.addTable(size, accessible)) {
+            Display.printMessage("Table added");
+        }
+        else {
+            Display.printError("Could not add that table");
         }
     }
 
@@ -187,48 +179,32 @@ public class TableNextApp {
         }
     }
 
-    /** Adds tables, fills every one, and leaves four parties waiting. */
-    private void loadBusyNightPreset() {
+    /** Adds tables sized to match, then fills every table with no one waiting. */
+    private void loadPreset1() {
         restaurant.addTable(4, 0);
         restaurant.addTable(6, 2);
         restaurant.addTable(8, 2);
-        int[] sizes = {2, 4, 4, 6, 6, 8, 3, 5, 2, 4};
-        String[] names = {"Adams", "Baker", "Chen", "Diaz", "Evans",
-            "Foster", "Garcia", "Hill", "Ito", "Jones"};
+        int[] sizes = {2, 4, 4, 6, 6, 8};
+        String[] names = {"Adams", "Baker", "Chen", "Diaz", "Evans", "Foster"};
         for (int i = 0; i < sizes.length; i++) {
             restaurant.addParty(names[i], sizes[i], false, null);
         }
-        Display.printMessage("Busy Night loaded: tables are full and parties are waiting");
+        Display.printMessage("Preset 1 loaded: every table is full");
     }
 
-    /** Shows small parties taking the smallest open table that fits. */
-    private void loadSmallestFitPreset() {
-        restaurant.addTable(8, 0);
-        restaurant.addParty("Kim", 3, false, null);
-        restaurant.addParty("Lopez", 5, false, null);
-        restaurant.addParty("Moore", 2, false, null);
-        restaurant.addParty("Nguyen", 7, false, null);
-        restaurant.addParty("Ortiz", 2, false, null);
-        restaurant.addParty("Patel", 4, false, null);
-        Display.printMessage("Smallest Fit loaded: 3 took the 4-top, 5 took the 6-top, 2 took the 2-top");
+    /** Fills every table like Preset 1, then leaves five parties waiting. */
+    private void loadPreset2() {
+        loadPreset1();
+        int[] sizes = {3, 5, 2, 4, 6};
+        String[] names = {"Garcia", "Hill", "Ito", "Jones", "Kim"};
+        for (int i = 0; i < sizes.length; i++) {
+            restaurant.addParty(names[i], sizes[i], false, null);
+        }
+        Display.printMessage("Preset 2 loaded: every table is full and 5 parties are waiting");
     }
 
-    /** Seats parties that need accessible seating, with more waiting. */
-    private void loadAccessibilityPreset() {
-        restaurant.addTable(4, 4);
-        restaurant.addTable(6, 3);
-        restaurant.addParty("Quinn", 3, true, null);
-        restaurant.addParty("Reed", 4, true, null);
-        restaurant.addParty("Singh", 5, true, null);
-        restaurant.addParty("Turner", 6, false, null);
-        restaurant.addParty("Usman", 2, true, null);
-        restaurant.addParty("Vega", 4, true, null);
-        restaurant.addParty("Wu", 3, false, null);
-        Display.printMessage("Accessibility loaded: view tables for accessible seats in use");
-    }
-
-    /** Fills the starting tables, then queues parties with reservation times. */
-    private void loadReservationsPreset() {
+    /** Seats some parties, then inserts a reservation at the front of the waitlist. */
+    private void loadPreset3() {
         restaurant.addParty("Young", 2, false, null);
         restaurant.addParty("Zhang", 4, false, null);
         restaurant.addParty("Allen", 6, false, null);
@@ -237,7 +213,7 @@ public class TableNextApp {
         restaurant.addParty("Cole", 4, false, now.plusMinutes(30));
         restaurant.addParty("Dunn", 6, true, now.plusHours(1));
         restaurant.insertPartyAt("Ellis", 2, false, now.plusMinutes(15), 1);
-        Display.printMessage("Reservations loaded: Ellis was inserted at the front of the waitlist");
+        Display.printMessage("Preset 3 loaded: Ellis was inserted at the front of the waitlist");
     }
 
     /** Performs a server action chosen from the Server menu. */
@@ -407,7 +383,7 @@ public class TableNextApp {
 
     private int getMaximumChoice(UserType user) {
         if (user == UserType.HOST) {
-            return 10;
+            return 13;
         }
         if (user == UserType.SERVER) {
             return 4;
